@@ -144,6 +144,10 @@
             font-size: 12px;
             opacity: 0.8;
         }
+        .node-info.missing {
+            color: #f44336;
+            font-weight: bold;
+        }
 
         .node-status {
             position: absolute;
@@ -1509,13 +1513,24 @@
             node.onclick = () => openDetail(trId);
 
             const tr = systemData.transformers[trId];
+
+            // 용량 정보 확인
+            let capacityInfo = '';
+            let capacityClass = '';
+            if (tr.capacity && tr.capacity > 0) {
+                capacityInfo = `${tr.capacity}kVA`;
+            } else {
+                capacityInfo = '용량 미입력';
+                capacityClass = ' missing';
+            }
+
             node.innerHTML = `
                 <div class="node-actions">
                     <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${trId}')">✎</button>
                     <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${trId}', 'transformer')">×</button>
                 </div>
                 <div class="node-title">🔌 ${tr.title}</div>
-                <div class="node-info">${tr.capacity}kVA</div>
+                <div class="node-info${capacityClass}">${capacityInfo}</div>
                 <div class="node-status ${tr.status}">${tr.status === 'complete' ? '✓' : tr.status === 'incomplete' ? '!' : '-'}</div>
             `;
 
@@ -1540,13 +1555,24 @@
             node.onclick = () => openDetail(mccId);
 
             const mcc = systemData.panels[mccId];
+
+            // 주차단기 정보 확인
+            let breakerInfo = '';
+            let breakerClass = '';
+            if (mcc.mainBreaker && mcc.mainBreaker.trim()) {
+                breakerInfo = mcc.mainBreaker;
+            } else {
+                breakerInfo = '미입력';
+                breakerClass = ' missing';
+            }
+
             node.innerHTML = `
                 <div class="node-actions">
                     <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${mccId}')">✎</button>
                     <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${mccId}', 'mcc')">×</button>
                 </div>
                 <div class="node-title">📊 ${mcc.title}</div>
-                <div class="node-info">${mcc.purpose}</div>
+                <div class="node-info${breakerClass}">주차단기: ${breakerInfo}</div>
                 <div class="node-status ${mcc.status}">${mcc.status === 'complete' ? '✓' : mcc.status === 'incomplete' ? '!' : '-'}</div>
             `;
 
@@ -1567,13 +1593,24 @@
             node.onclick = () => openDetail(loadId);
 
             const load = systemData.loads[loadId];
+
+            // 용량 정보 확인
+            let capacityInfo = '';
+            let capacityClass = '';
+            if (load.power && load.power > 0) {
+                capacityInfo = `${load.power}kW×${load.quantity || 1}`;
+            } else {
+                capacityInfo = '용량 미입력';
+                capacityClass = ' missing';
+            }
+
             node.innerHTML = `
                 <div class="node-actions">
                     <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${loadId}')">✎</button>
                     <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${loadId}', 'load')">×</button>
                 </div>
                 <div class="node-title">⚙️ ${load.title}</div>
-                <div class="node-info">${load.power}kW×${load.quantity}</div>
+                <div class="node-info${capacityClass}">${capacityInfo}</div>
                 <div class="node-status ${load.status}">${load.status === 'complete' ? '✓' : load.status === 'incomplete' ? '!' : '-'}</div>
             `;
 
