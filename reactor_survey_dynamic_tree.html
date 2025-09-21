@@ -2542,29 +2542,25 @@
             const treeView = document.getElementById('treeView');
             if (!treeView) return;
 
-            // 기존 노드들 제거 (통계 카드는 유지)
-            const existingNodes = treeView.querySelectorAll('.tree-node');
+            // 기존 노드들 제거 (KEPCO와 통계 카드는 유지)
+            const existingNodes = treeView.querySelectorAll('.tree-node:not(#kepco)');
             existingNodes.forEach(node => node.remove());
 
             // KEPCO 수전 정보 업데이트
-            if (systemData.kepco && systemData.kepco.contractPower > 0) {
-                // KEPCO 노드가 없으면 생성
-                let kepcoNode = document.getElementById('kepco');
-                if (!kepcoNode) {
-                    const treeContainer = treeView.querySelector('.tree-container') || treeView;
-                    kepcoNode = document.createElement('div');
-                    kepcoNode.className = 'tree-node';
-                    kepcoNode.id = 'kepco';
-                    kepcoNode.onclick = () => showNodeDetail('kepco');
-                    treeContainer.appendChild(kepcoNode);
+            let kepcoNode = document.getElementById('kepco');
+            if (kepcoNode && systemData.kepco) {
+                // 기존 KEPCO 노드 업데이트
+                const nodeInfo = kepcoNode.querySelector('.node-info');
+                const nodeStatus = kepcoNode.querySelector('.node-status');
+
+                if (nodeInfo) {
+                    nodeInfo.textContent = `${systemData.kepco.voltage} / ${systemData.kepco.contractPower}kW`;
                 }
-                kepcoNode.innerHTML = `
-                    <div class="node-icon">📋</div>
-                    <div class="node-content">
-                        <div class="node-title">KEPCO 수전 (${systemData.kepco.voltage}, ${systemData.kepco.contractPower}kW)</div>
-                        <div class="node-status ${systemData.kepco.status || 'empty'}">${getStatusText(systemData.kepco.status || 'empty')}</div>
-                    </div>
-                `;
+                if (nodeStatus) {
+                    nodeStatus.className = `node-status ${systemData.kepco.status || 'empty'}`;
+                    nodeStatus.textContent = systemData.kepco.status === 'completed' ? '완료' :
+                                            systemData.kepco.status === 'incomplete' ? '진행중' : '-';
+                }
             }
 
             // 변압기 노드들 재생성
