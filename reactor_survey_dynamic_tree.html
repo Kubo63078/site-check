@@ -175,12 +175,27 @@
 
         /* 트리 구조 스타일 */
         .tree-diagram {
-            background: white;
             border-radius: 15px;
             padding: 30px;
-            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
-            min-height: 600px;
             position: relative;
+            overflow-x: auto;
+            overflow-y: visible;
+            transform-origin: top left;
+            transition: transform 0.3s ease;
+            display: inline-block;
+            min-width: 100%;
+        }
+
+        /* 트리 다이어그램 배경 컨테이너 */
+        .tree-view-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            margin: 20px;
         }
 
         .tree-node {
@@ -351,8 +366,9 @@
             justify-content: center;
             margin: 40px 0;
             position: relative;
-            flex-wrap: wrap;
+            flex-wrap: nowrap;
             gap: 20px;
+            min-width: max-content;
         }
 
         .tree-level-1 {
@@ -429,6 +445,9 @@
         .detail-footer {
             background: white;
             padding: 20px;
+            padding-bottom: 50px;
+            /* iOS safe area 대응 */
+            padding-bottom: calc(50px + env(safe-area-inset-bottom));
             border-top: 1px solid #e0e0e0;
             box-shadow: 0 -2px 10px rgba(0,0,0,0.1);
         }
@@ -899,10 +918,32 @@
                 width: 100%;
                 right: -100%;
             }
-            
+
+            .detail-footer {
+                padding-bottom: 60px;
+                /* iOS safe area 대응 강화 */
+                padding-bottom: calc(60px + env(safe-area-inset-bottom));
+            }
+
+            .detail-footer .btn {
+                padding: 15px 20px;
+                font-size: 16px;
+                min-height: 50px;
+            }
+
             .tree-level {
-                flex-direction: column;
-                align-items: center;
+                flex-direction: row;
+                overflow-x: auto;
+                padding-bottom: 10px;
+            }
+
+            .tree-level::-webkit-scrollbar {
+                height: 4px;
+            }
+
+            .tree-level::-webkit-scrollbar-thumb {
+                background: rgba(102, 126, 234, 0.3);
+                border-radius: 2px;
             }
         }
     </style>
@@ -1175,6 +1216,11 @@
             addTransformerNode(trId);
             updateStatistics();
             redrawConnections();
+
+            // 자동 스케일 조정
+            setTimeout(() => {
+                autoScaleTree();
+            }, 100);
         }
 
         // MCC 추가
@@ -1304,6 +1350,11 @@
             addMCCNode(mccId);
             updateStatistics();
             redrawConnections();
+
+            // 자동 스케일 조정
+            setTimeout(() => {
+                autoScaleTree();
+            }, 100);
         }
 
         // 부하 추가
@@ -1428,6 +1479,11 @@
             addLoadNode(loadId);
             updateStatistics();
             redrawConnections();
+
+            // 자동 스케일 조정
+            setTimeout(() => {
+                autoScaleTree();
+            }, 100);
         }
 
         // 추가 확인
@@ -2046,6 +2102,40 @@
             // 진행률 바가 삭제되어 더 이상 업데이트할 요소가 없음
         }
 
+        // 자동 스케일 조정 함수
+        function autoScaleTree() {
+            const diagram = document.getElementById('treeDiagram');
+            const container = diagram.parentElement;
+
+            // 실제 콘텐츠 너비 계산
+            const contentWidth = diagram.scrollWidth;
+            const containerWidth = container.clientWidth - 40; // 패딩 고려
+
+            if (contentWidth > containerWidth) {
+                // 화면에 맞춰 자동 스케일 적용
+                const scale = Math.max(0.3, containerWidth / contentWidth);
+                diagram.style.transform = `scale(${scale})`;
+
+                // 컨테이너 크기를 스케일된 콘텐츠에 맞춰 조정
+                const scaledWidth = contentWidth * scale;
+                const scaledHeight = diagram.offsetHeight * scale;
+
+                // 컨테이너의 실제 공간을 스케일된 크기에 맞춤
+                container.style.height = `${scaledHeight + 60}px`; // 패딩 고려
+                diagram.style.marginBottom = '0px';
+
+                // 스케일 변경 후 연결선 다시 그리기
+                setTimeout(() => redrawConnections(), 100);
+            } else {
+                diagram.style.transform = 'scale(1)';
+                diagram.style.marginBottom = '0px';
+                container.style.height = 'auto';
+
+                // 스케일 리셋 후 연결선 다시 그리기
+                setTimeout(() => redrawConnections(), 100);
+            }
+        }
+
         // 연결선 다시 그리기
         function redrawConnections() {
             const svg = document.getElementById('treeSvg');
@@ -2077,24 +2167,39 @@
         function drawLine(svg, fromId, toId) {
             const from = document.getElementById(fromId);
             const to = document.getElementById(toId);
-            
+
             if (!from || !to) return;
-            
+
+            // 다이어그램과 SVG의 현재 transform 상태 고려
+            const diagram = document.getElementById('treeDiagram');
+            const currentTransform = diagram.style.transform;
+
+            // 스케일 값 추출 (기본값 1)
+            let scale = 1;
+            if (currentTransform && currentTransform.includes('scale')) {
+                const scaleMatch = currentTransform.match(/scale\(([\d.]+)\)/);
+                if (scaleMatch) {
+                    scale = parseFloat(scaleMatch[1]);
+                }
+            }
+
+            // 요소의 상대적 위치 계산 (다이어그램 기준)
+            const diagramRect = diagram.getBoundingClientRect();
             const fromRect = from.getBoundingClientRect();
             const toRect = to.getBoundingClientRect();
-            const svgRect = svg.getBoundingClientRect();
-            
-            const x1 = fromRect.left + fromRect.width / 2 - svgRect.left;
-            const y1 = fromRect.bottom - svgRect.top;
-            const x2 = toRect.left + toRect.width / 2 - svgRect.left;
-            const y2 = toRect.top - svgRect.top;
-            
+
+            // 다이어그램 내부 좌표로 변환
+            const x1 = (fromRect.left - diagramRect.left) / scale + fromRect.width / (2 * scale);
+            const y1 = (fromRect.bottom - diagramRect.top) / scale;
+            const x2 = (toRect.left - diagramRect.left) / scale + toRect.width / (2 * scale);
+            const y2 = (toRect.top - diagramRect.top) / scale;
+
             const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
             const d = `M ${x1} ${y1} C ${x1} ${y1 + 30}, ${x2} ${y2 - 30}, ${x2} ${y2}`;
             path.setAttribute('d', d);
             path.setAttribute('class', 'tree-path');
             path.setAttribute('id', `path-${fromId}-${toId}`);
-            
+
             svg.appendChild(path);
         }
 
@@ -2705,11 +2810,15 @@
             }, 100);
         });
 
-        // 창 크기 변경시 연결선 다시 그리기
+        // 창 크기 변경시 연결선 다시 그리기 및 스케일 조정
         window.addEventListener('resize', () => {
             if (typeof redrawConnections === 'function') {
                 redrawConnections();
             }
+            // 자동 스케일 조정
+            setTimeout(() => {
+                autoScaleTree();
+            }, 100);
         });
 
         // 키보드 단축키
