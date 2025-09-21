@@ -1,0 +1,2661 @@
+<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원세이버스 리액터 설치 통합 조사 시스템 v5.0 - Dynamic</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+
+        body {
+            font-family: 'Segoe UI', -apple-system, BlinkMacSystemFont, sans-serif;
+            background: #1a1a2e;
+            color: #333;
+            height: 100vh;
+            overflow: hidden;
+        }
+
+        .main-container {
+            height: 100vh;
+        }
+
+        /* 메인 콘텐츠 영역 */
+        .content-area {
+            display: flex;
+            flex-direction: column;
+            background: #f0f0f0;
+            overflow: hidden;
+            height: 100vh;
+        }
+
+        /* 헤더 */
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px 30px;
+            box-shadow: 0 2px 10px rgba(0,0,0,0.2);
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .header h1 {
+            font-size: 24px;
+            font-weight: 600;
+        }
+
+        .header-actions {
+            display: flex;
+            gap: 10px;
+        }
+
+        .header-btn {
+            padding: 8px 16px;
+            background: rgba(255,255,255,0.2);
+            border: 1px solid rgba(255,255,255,0.3);
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: all 0.3s;
+            font-size: 14px;
+        }
+
+        .header-btn:hover {
+            background: rgba(255,255,255,0.3);
+            transform: translateY(-2px);
+        }
+
+        /* 트리 뷰 컨테이너 */
+        .tree-view-container {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+            display: none;
+        }
+
+        .tree-view-container.active {
+            display: block;
+        }
+
+        /* 트리 구조 스타일 */
+        .tree-diagram {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.1);
+            min-height: 600px;
+            position: relative;
+        }
+
+        .tree-node {
+            position: relative;
+            display: inline-block;
+            background: white;
+            border: 2px solid #667eea;
+            border-radius: 10px;
+            padding: 15px 20px;
+            margin: 10px;
+            cursor: pointer;
+            transition: all 0.3s;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .tree-node:hover {
+            transform: translateY(-5px);
+            box-shadow: 0 8px 25px rgba(0,0,0,0.2);
+            background: #f8f9ff;
+        }
+
+        .tree-node.selected {
+            background: #667eea;
+            color: white;
+            border-color: #764ba2;
+        }
+
+        .tree-node.selected .node-status,
+        .tree-node.selected .node-actions {
+            background: white;
+            color: #667eea;
+        }
+
+        .tree-node.add-node {
+            border: 2px dashed #999;
+            background: #f9f9f9;
+            opacity: 0.7;
+        }
+
+        .tree-node.add-node:hover {
+            opacity: 1;
+            border-color: #4CAF50;
+            background: #e8f5e9;
+        }
+
+        .node-title {
+            font-weight: 600;
+            font-size: 14px;
+            margin-bottom: 5px;
+        }
+
+        .node-info {
+            font-size: 12px;
+            opacity: 0.8;
+        }
+
+        .node-status {
+            position: absolute;
+            top: -10px;
+            right: -10px;
+            background: #4CAF50;
+            color: white;
+            border-radius: 50%;
+            width: 24px;
+            height: 24px;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 10px;
+            font-weight: bold;
+        }
+
+        .node-status.incomplete {
+            background: #ff9800;
+        }
+
+        .node-status.empty {
+            background: #e0e0e0;
+        }
+
+        /* 사진 표시 영역 */
+        .node-photos {
+            margin-top: 10px;
+            display: flex;
+            flex-wrap: wrap;
+            gap: 4px;
+            max-width: 140px;
+        }
+
+        .node-photos img {
+            width: 40px;
+            height: 40px;
+            object-fit: cover;
+            border-radius: 4px;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+
+        .node-photos img:hover {
+            transform: scale(1.1);
+        }
+
+        /* 사진 버튼 스타일 */
+        .photo-btn {
+            background: #ff9800;
+            color: white;
+            border: none;
+            border-radius: 6px;
+            padding: 6px 10px;
+            font-size: 12px;
+            cursor: pointer;
+            margin: 5px 0;
+            transition: all 0.2s;
+        }
+
+        .photo-btn:hover {
+            background: #f57c00;
+            transform: translateY(-1px);
+        }
+
+        /* 노드 액션 버튼 */
+        .node-actions {
+            position: absolute;
+            top: -10px;
+            left: -10px;
+            display: none;
+            gap: 5px;
+        }
+
+        .tree-node:hover .node-actions {
+            display: flex;
+        }
+
+        .node-action-btn {
+            width: 20px;
+            height: 20px;
+            border-radius: 50%;
+            border: none;
+            cursor: pointer;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 12px;
+            transition: all 0.2s;
+        }
+
+        .node-action-btn.delete {
+            background: #f44336;
+            color: white;
+        }
+
+        .node-action-btn.edit {
+            background: #2196F3;
+            color: white;
+        }
+
+        .node-action-btn:hover {
+            transform: scale(1.2);
+        }
+
+        /* 트리 계층 구조 */
+        .tree-level {
+            display: flex;
+            justify-content: center;
+            margin: 40px 0;
+            position: relative;
+            flex-wrap: wrap;
+            gap: 20px;
+        }
+
+        .tree-level-1 {
+            justify-content: center;
+        }
+
+        .tree-level-2 {
+            justify-content: center;
+            padding: 0 50px;
+        }
+
+        .tree-level-3 {
+            justify-content: center;
+            padding: 0 30px;
+        }
+
+        .tree-level-4 {
+            justify-content: center;
+            padding: 0 20px;
+        }
+
+        /* 상세 정보 패널 */
+        .detail-panel {
+            position: fixed;
+            right: -450px;
+            top: 0;
+            width: 450px;
+            height: 100vh;
+            background: white;
+            box-shadow: -5px 0 20px rgba(0,0,0,0.2);
+            transition: right 0.3s;
+            z-index: 1000;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .detail-panel.open {
+            right: 0;
+        }
+
+        .detail-header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 20px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .detail-header h2 {
+            font-size: 18px;
+        }
+
+        .close-btn {
+            background: none;
+            border: none;
+            color: white;
+            font-size: 24px;
+            cursor: pointer;
+            transition: transform 0.3s;
+        }
+
+        .close-btn:hover {
+            transform: rotate(90deg);
+        }
+
+        .detail-content {
+            flex: 1;
+            padding: 20px;
+            overflow-y: auto;
+        }
+
+        .detail-form-group {
+            margin-bottom: 20px;
+        }
+
+        .detail-form-group label {
+            display: block;
+            font-weight: 600;
+            margin-bottom: 8px;
+            color: #333;
+            font-size: 14px;
+        }
+
+        .detail-form-control {
+            width: 100%;
+            padding: 10px;
+            border: 2px solid #e0e0e0;
+            border-radius: 8px;
+            font-size: 14px;
+            transition: border-color 0.3s;
+        }
+
+        .detail-form-control:focus {
+            outline: none;
+            border-color: #667eea;
+        }
+
+        /* 통계 카드 */
+        .stats-container {
+            display: grid;
+            grid-template-columns: repeat(auto-fit, minmax(200px, 1fr));
+            gap: 20px;
+            margin-bottom: 20px;
+        }
+
+        .stat-card {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            text-align: center;
+            position: relative;
+            overflow: hidden;
+        }
+
+        .stat-card::before {
+            content: '';
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 4px;
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+        }
+
+        .stat-value {
+            font-size: 32px;
+            font-weight: bold;
+            color: #667eea;
+        }
+
+        .stat-label {
+            font-size: 12px;
+            color: #666;
+            margin-top: 5px;
+        }
+
+        /* 프로그레스 바 */
+        .progress-container {
+            background: white;
+            padding: 20px;
+            border-radius: 10px;
+            margin-bottom: 20px;
+            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+        }
+
+        .progress-bar {
+            background: #e0e0e0;
+            height: 30px;
+            border-radius: 15px;
+            overflow: hidden;
+            position: relative;
+        }
+
+        .progress-fill {
+            background: linear-gradient(90deg, #667eea 0%, #764ba2 100%);
+            height: 100%;
+            width: 0%;
+            transition: width 0.5s ease;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            color: white;
+            font-weight: bold;
+            font-size: 14px;
+        }
+
+        /* 모달 */
+        .modal {
+            display: none;
+            position: fixed;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            background: rgba(0,0,0,0.5);
+            z-index: 2000;
+            align-items: center;
+            justify-content: center;
+        }
+
+        .modal.show {
+            display: flex;
+            animation: fadeIn 0.3s;
+        }
+
+        .modal-content {
+            background: white;
+            border-radius: 15px;
+            padding: 30px;
+            max-width: 500px;
+            width: 90%;
+            max-height: 80vh;
+            overflow-y: auto;
+            animation: slideUp 0.3s;
+        }
+
+        .modal-header {
+            font-size: 20px;
+            font-weight: 600;
+            margin-bottom: 20px;
+            color: #333;
+        }
+
+        .modal-body {
+            margin-bottom: 20px;
+        }
+
+        .modal-footer {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        /* 버튼 스타일 */
+        .btn {
+            padding: 10px 20px;
+            border: none;
+            border-radius: 8px;
+            cursor: pointer;
+            font-size: 14px;
+            font-weight: 600;
+            transition: all 0.3s;
+        }
+
+        .btn-primary {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+        }
+
+        .btn-secondary {
+            background: #e0e0e0;
+            color: #333;
+        }
+
+        .btn-success {
+            background: #4CAF50;
+            color: white;
+        }
+
+        .btn-danger {
+            background: #f44336;
+            color: white;
+        }
+
+        .btn-warning {
+            background: #ff9800;
+            color: white;
+        }
+
+        .btn:hover {
+            transform: translateY(-2px);
+            box-shadow: 0 5px 15px rgba(0,0,0,0.2);
+        }
+
+        /* 플로팅 액션 버튼 */
+        .fab-container {
+            position: fixed;
+            bottom: 30px;
+            right: 30px;
+            display: flex;
+            flex-direction: column;
+            gap: 15px;
+            z-index: 900;
+        }
+
+        .fab {
+            width: 56px;
+            height: 56px;
+            border-radius: 50%;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            border: none;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            cursor: pointer;
+            box-shadow: 0 6px 20px rgba(0,0,0,0.3);
+            font-size: 24px;
+            transition: all 0.3s;
+        }
+
+        .fab:hover {
+            transform: scale(1.1);
+            box-shadow: 0 8px 30px rgba(0,0,0,0.4);
+        }
+
+        .fab.secondary {
+            background: #4CAF50;
+            width: 48px;
+            height: 48px;
+            font-size: 20px;
+        }
+
+        /* SVG 연결선 스타일 */
+        .tree-svg {
+            position: absolute;
+            top: 0;
+            left: 0;
+            width: 100%;
+            height: 100%;
+            pointer-events: none;
+            z-index: 0;
+        }
+
+        .tree-path {
+            fill: none;
+            stroke: #667eea;
+            stroke-width: 2;
+            opacity: 0.5;
+        }
+
+        .tree-path.highlighted {
+            stroke: #e94560;
+            stroke-width: 3;
+            opacity: 1;
+        }
+
+        /* 툴팁 */
+        .tooltip {
+            position: absolute;
+            background: #333;
+            color: white;
+            padding: 8px 12px;
+            border-radius: 6px;
+            font-size: 12px;
+            white-space: nowrap;
+            z-index: 1000;
+            pointer-events: none;
+            opacity: 0;
+            transition: opacity 0.3s;
+        }
+
+        .tooltip.show {
+            opacity: 1;
+        }
+
+        /* 애니메이션 */
+        @keyframes fadeIn {
+            from { opacity: 0; }
+            to { opacity: 1; }
+        }
+
+        @keyframes slideUp {
+            from {
+                transform: translateY(30px);
+                opacity: 0;
+            }
+            to {
+                transform: translateY(0);
+                opacity: 1;
+            }
+        }
+
+        @keyframes pulse {
+            0% { transform: scale(1); }
+            50% { transform: scale(1.05); }
+            100% { transform: scale(1); }
+        }
+
+        /* 모바일 최적화 */
+        @media (max-width: 768px) {
+
+            .content-area {
+                order: 1;
+                height: calc(100vh - 60px);
+            }
+
+            .header {
+                padding: 15px 20px;
+                flex-direction: column;
+                gap: 10px;
+                text-align: center;
+            }
+
+            .header h1 {
+                font-size: 18px;
+            }
+
+            .header-actions {
+                flex-wrap: wrap;
+                justify-content: center;
+                gap: 8px;
+            }
+
+            .header-btn {
+                padding: 6px 12px;
+                font-size: 12px;
+            }
+
+            .tree-view-container {
+                padding: 15px;
+            }
+
+            .stats-container {
+                grid-template-columns: repeat(2, 1fr);
+                gap: 10px;
+            }
+
+            .stat-card {
+                padding: 15px;
+            }
+
+            .tree-node {
+                padding: 12px 15px;
+                margin: 8px;
+                min-width: 120px;
+            }
+
+            .node-title {
+                font-size: 14px;
+            }
+
+            .node-info {
+                font-size: 12px;
+            }
+
+            .node-photos img {
+                width: 30px;
+                height: 30px;
+            }
+
+            .detail-panel {
+                right: -100%;
+                width: 100%;
+                top: 0;
+            }
+
+            .detail-panel.open {
+                right: 0;
+            }
+
+            .modal-content {
+                width: 95%;
+                max-height: 85vh;
+                margin: 20px auto;
+            }
+
+            .photo-btn {
+                padding: 8px 12px;
+                font-size: 14px;
+                width: 100%;
+                margin: 8px 0;
+            }
+
+            /* 터치 친화적 버튼 크기 */
+            .btn {
+                min-height: 44px;
+                touch-action: manipulation;
+            }
+
+            .header-btn {
+                min-height: 40px;
+                touch-action: manipulation;
+            }
+
+            .tree-node {
+                touch-action: manipulation;
+                min-height: 60px;
+            }
+
+            /* 확대된 텍스트 입력 */
+            .detail-form-control {
+                font-size: 16px; /* iOS 줌 방지 */
+                padding: 12px;
+                min-height: 44px;
+            }
+
+            /* 사진 확대 */
+            .node-photos img:hover {
+                transform: scale(1.2);
+            }
+        }
+
+        /* 아주 작은 화면 (320px 이하) */
+        @media (max-width: 320px) {
+            .header h1 {
+                font-size: 16px;
+            }
+
+            .stats-container {
+                grid-template-columns: 1fr;
+            }
+
+            .tree-node {
+                min-width: 100px;
+                padding: 10px 12px;
+            }
+
+            .header-btn {
+                padding: 4px 8px;
+                font-size: 11px;
+            }
+        }
+
+        .pulse {
+            animation: pulse 2s infinite;
+        }
+
+        /* 확인 다이얼로그 */
+        .confirm-dialog {
+            position: absolute;
+            background: white;
+            border: 2px solid #f44336;
+            border-radius: 10px;
+            padding: 15px;
+            box-shadow: 0 5px 20px rgba(0,0,0,0.3);
+            z-index: 1001;
+            display: none;
+        }
+
+        .confirm-dialog.show {
+            display: block;
+        }
+
+        .confirm-dialog p {
+            margin-bottom: 15px;
+            font-size: 14px;
+        }
+
+        .confirm-dialog .buttons {
+            display: flex;
+            gap: 10px;
+            justify-content: flex-end;
+        }
+
+        .confirm-dialog button {
+            padding: 5px 15px;
+            border: none;
+            border-radius: 5px;
+            cursor: pointer;
+            font-size: 12px;
+        }
+
+        /* 업체정보 모달 스타일 */
+        #companyInfoModal .modal-body label {
+            display: block;
+            margin-top: 15px;
+            margin-bottom: 5px;
+            font-weight: bold;
+            color: #333;
+        }
+
+        #companyInfoModal .modal-body input,
+        #companyInfoModal .modal-body textarea {
+            width: 100%;
+            padding: 10px;
+            border: 1px solid #ddd;
+            border-radius: 4px;
+            font-size: 14px;
+            box-sizing: border-box;
+        }
+
+        #companyInfoModal .modal-body textarea {
+            height: 80px;
+            resize: vertical;
+            font-family: inherit;
+        }
+
+        #companyInfoModal .modal-body input:first-of-type {
+            margin-top: 0;
+        }
+
+        #companyInfoModal .modal-body input:focus,
+        #companyInfoModal .modal-body textarea:focus {
+            border-color: #2196F3;
+            outline: none;
+            box-shadow: 0 0 5px rgba(33, 150, 243, 0.3);
+        }
+
+        /* 반응형 */
+        @media (max-width: 768px) {
+            .detail-panel {
+                width: 100%;
+                right: -100%;
+            }
+            
+            .tree-level {
+                flex-direction: column;
+                align-items: center;
+            }
+        }
+    </style>
+</head>
+<body>
+    <div class="main-container">
+        <!-- 메인 콘텐츠 영역 -->
+        <div class="content-area">
+            <!-- 헤더 -->
+            <div class="header">
+                <div>
+                    <h1>⚡ 원세이버스 리액터 설치 통합 조사 시스템</h1>
+                    <div style="font-size: 14px; opacity: 0.9; margin-top: 5px;">동적 트리구조 관리 시스템 v5.0</div>
+                </div>
+                <div class="header-actions">
+                    <button class="header-btn" onclick="openCompanyInfo()">📋 기본정보</button>
+                    <button class="header-btn" onclick="generatePhotoIndex()">📷 사진 대조표</button>
+                    <button class="header-btn" onclick="saveAsHTML()">💾 HTML 저장</button>
+                </div>
+            </div>
+
+            <!-- 트리 뷰 컨테이너 -->
+            <div class="tree-view-container active" id="treeView">
+                <!-- 통계 카드 -->
+                <div class="stats-container">
+                    <div class="stat-card">
+                        <div class="stat-value" id="contractPowerStat">0</div>
+                        <div class="stat-label">계약전력 (kW)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="transformerCount">0</div>
+                        <div class="stat-label">변압기 대수</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="totalCapacityStat">0</div>
+                        <div class="stat-label">총 설비용량 (kVA)</div>
+                    </div>
+                    <div class="stat-card">
+                        <div class="stat-value" id="recommendedReactor">0</div>
+                        <div class="stat-label">권장 리액터 (kVar)</div>
+                    </div>
+                </div>
+
+                <!-- 진행률 표시 -->
+                <div class="progress-container">
+                    <div class="progress-bar">
+                        <div class="progress-fill" id="progressBar">
+                            <span>조사 진행률: 0%</span>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- 전체 구조 다이어그램 -->
+                <div class="structure-overview">
+                    <h2 class="structure-title" style="font-size: 20px; font-weight: 600; margin-bottom: 20px; color: #333;">
+                        🌳 전력계통 트리 구조도
+                    </h2>
+                    
+                    <div class="tree-diagram" id="treeDiagram">
+                        <!-- SVG 캔버스 -->
+                        <svg class="tree-svg" id="treeSvg"></svg>
+                        
+                        <!-- Level 1: 한전 수전 -->
+                        <div class="tree-level tree-level-1" id="level1">
+                            <div class="tree-node" id="kepco" onclick="showNodeDetail('kepco')" style="background: #f3e5f5;">
+                                <div class="node-title">🏭 한전 수전</div>
+                                <div class="node-info">22.9kV / 0kW</div>
+                                <div class="node-status empty">-</div>
+                                <div class="node-photos" id="photos-kepco"></div>
+                            </div>
+                        </div>
+
+                        <!-- Level 2: 변압기 -->
+                        <div class="tree-level tree-level-2" id="level2">
+                            <!-- 변압기 추가 버튼 -->
+                            <div class="tree-node add-node" onclick="addTransformer()">
+                                <div class="node-title">➕ 변압기 추가</div>
+                                <div class="node-info">클릭하여 추가</div>
+                            </div>
+                        </div>
+
+                        <!-- Level 3: 분전반 -->
+                        <div class="tree-level tree-level-3" id="level3">
+                            <!-- MCC 추가 버튼 -->
+                            <div class="tree-node add-node" onclick="addMCC()">
+                                <div class="node-title">➕ 분전반 추가</div>
+                                <div class="node-info">변압기 선택 후 추가</div>
+                            </div>
+                        </div>
+
+                        <!-- Level 4: 주요 부하 -->
+                        <div class="tree-level tree-level-4" id="level4">
+                            <!-- 부하 추가 버튼 -->
+                            <div class="tree-node add-node" onclick="addLoad()">
+                                <div class="node-title">➕ 부하 추가</div>
+                                <div class="node-info">분전반 선택 후 추가</div>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+            </div>
+        </div>
+
+        <!-- 상세 정보 패널 -->
+        <div class="detail-panel" id="detailPanel">
+            <div class="detail-header">
+                <h2 id="detailTitle">상세 정보</h2>
+                <button class="close-btn" onclick="closeDetail()">×</button>
+            </div>
+            <div class="detail-content" id="detailContent">
+                <!-- 동적 콘텐츠 -->
+            </div>
+        </div>
+
+        <!-- 플로팅 액션 버튼 -->
+        <div class="fab-container">
+            <button class="fab secondary" onclick="addTransformer()" title="변압기 추가">
+                🔌
+            </button>
+            <button class="fab secondary" onclick="addMCC()" title="분전반 추가">
+                📊
+            </button>
+            <button class="fab secondary" onclick="addLoad()" title="부하 추가">
+                ⚙️
+            </button>
+            <button class="fab" onclick="saveData()" title="저장">
+                💾
+            </button>
+        </div>
+
+        <!-- 추가 모달 -->
+        <div class="modal" id="addModal">
+            <div class="modal-content">
+                <div class="modal-header" id="modalTitle">항목 추가</div>
+                <div class="modal-body" id="modalBody">
+                    <!-- 동적 콘텐츠 -->
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeModal()">취소</button>
+                    <button class="btn btn-primary" onclick="confirmAdd()">추가</button>
+                </div>
+            </div>
+        </div>
+
+        <!-- 삭제 확인 다이얼로그 -->
+        <div class="confirm-dialog" id="deleteConfirm">
+            <p>정말 삭제하시겠습니까?</p>
+            <div class="buttons">
+                <button onclick="cancelDelete()" style="background: #e0e0e0;">취소</button>
+                <button onclick="confirmDelete()" style="background: #f44336; color: white;">삭제</button>
+            </div>
+        </div>
+
+        <!-- 업체정보 모달 -->
+        <div class="modal" id="companyInfoModal">
+            <div class="modal-content" style="max-width: 600px;">
+                <div class="modal-header">
+                    <h3>📋 업체 기본정보</h3>
+                    <span class="close" onclick="closeCompanyInfo()">&times;</span>
+                </div>
+                <div class="modal-body" id="companyInfoBody">
+                    <label>업체명</label>
+                    <input type="text" id="companyName" placeholder="업체명을 입력하세요">
+
+                    <label>주소</label>
+                    <input type="text" id="companyAddress" placeholder="업체 주소">
+
+                    <label>연락처</label>
+                    <input type="text" id="companyContact" placeholder="전화번호">
+
+                    <label>담당자</label>
+                    <input type="text" id="companyManager" placeholder="담당자명">
+
+                    <label>조사일자</label>
+                    <input type="date" id="surveyDate">
+
+                    <label>계약일자</label>
+                    <input type="date" id="contractDate">
+
+                    <label>비고</label>
+                    <textarea id="companyNotes" placeholder="기타 메모"></textarea>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="closeCompanyInfo()">취소</button>
+                    <button class="btn btn-primary" onclick="saveCompanyInfo()">저장</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        // 전역 데이터 저장소
+        let systemData = {
+            companyInfo: {
+                name: '',
+                address: '',
+                contact: '',
+                manager: '',
+                surveyDate: '',
+                contractDate: '',
+                notes: ''
+            },
+            kepco: {
+                voltage: '22.9kV',
+                contractPower: 0,
+                receptionType: '',
+                vcb: '',
+                status: 'empty'
+            },
+            transformers: {},
+            panels: {},
+            loads: {},
+            images: {}, // 사진 저장용 (nodeId: [base64Images...])
+            connections: {
+                transformerToPanels: {},
+                panelToLoads: {}
+            }
+        };
+
+        // 카운터
+        let transformerCounter = 0;
+        let mccCounter = 0;
+        let loadCounter = 0;
+
+        // 선택된 항목
+        let selectedNode = null;
+        let selectedTransformer = null;
+        let selectedPanel = null;
+        let nodeToDelete = null;
+        let currentModalType = null;
+
+        // 유틸리티 함수들
+        function getTransformerNumber(transformerId) {
+            // transformer1 -> 1
+            return parseInt(transformerId.replace('transformer', ''));
+        }
+
+        function getPanelNumbers(panelTitle) {
+            // 분전1-2 -> [1, 2]
+            const match = panelTitle.match(/분전(\d+)-(\d+)/);
+            return match ? [parseInt(match[1]), parseInt(match[2])] : [0, 0];
+        }
+
+        function getLoadNumbers(loadTitle) {
+            // 부하1-2-3 -> [1, 2, 3]
+            const match = loadTitle.match(/부하(\d+)-(\d+)-(\d+)/);
+            return match ? [parseInt(match[1]), parseInt(match[2]), parseInt(match[3])] : [0, 0, 0];
+        }
+
+        function sortNodesByNumber(container, getNumbers) {
+            const nodes = Array.from(container.children).filter(node => !node.classList.contains('add-node'));
+            const addButton = container.querySelector('.add-node');
+
+            // 번호 기준으로 정렬
+            nodes.sort((a, b) => {
+                const aData = systemData.transformers[a.id] || systemData.panels[a.id] || systemData.loads[a.id];
+                const bData = systemData.transformers[b.id] || systemData.panels[b.id] || systemData.loads[b.id];
+
+                const aNumbers = getNumbers(aData.title);
+                const bNumbers = getNumbers(bData.title);
+
+                // 배열 비교 (첫 번째 요소부터 순서대로)
+                for (let i = 0; i < Math.max(aNumbers.length, bNumbers.length); i++) {
+                    const aNum = aNumbers[i] || 0;
+                    const bNum = bNumbers[i] || 0;
+                    if (aNum !== bNum) return aNum - bNum;
+                }
+                return 0;
+            });
+
+            // DOM에서 기존 노드들 제거
+            nodes.forEach(node => container.removeChild(node));
+
+            // 정렬된 순서로 다시 추가
+            nodes.forEach(node => container.insertBefore(node, addButton));
+        }
+
+        // 변압기 추가
+        function addTransformer() {
+            transformerCounter++;
+            const trId = 'transformer' + transformerCounter;
+
+            // 기본값으로 변압기 추가
+            systemData.transformers[trId] = {
+                id: trId,
+                title: `변압기${transformerCounter}`,
+                name: `주변압기 #${transformerCounter}`,
+                capacity: 1500,
+                primaryVoltage: 22900,
+                secondaryVoltage: '380/220',
+                type: 'Oil',
+                loadRate: 0,
+                status: 'empty'
+            };
+
+            // DOM에 노드 추가
+            addTransformerNode(trId);
+            updateStatistics();
+            redrawConnections();
+        }
+
+        // MCC 추가
+        function addMCC() {
+            // 변압기가 있는지 확인
+            if (Object.keys(systemData.transformers).length === 0) {
+                alert('먼저 변압기를 추가해주세요.');
+                return;
+            }
+
+            // 변압기가 1개면 자동 연결, 여러 개면 선택
+            const transformerIds = Object.keys(systemData.transformers);
+            if (transformerIds.length === 1) {
+                // 변압기가 1개면 바로 추가
+                addMCCToTransformer(transformerIds[0]);
+            } else {
+                // 변압기가 여러 개면 선택 모달 표시
+                showTransformerSelectionModal();
+            }
+        }
+
+        function showTransformerSelectionModal() {
+            // 선택 모달 생성
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                max-width: 400px;
+                width: 90%;
+            `;
+
+            let html = '<h3>연결할 변압기를 선택하세요</h3><div style="margin: 15px 0;">';
+
+            Object.keys(systemData.transformers).forEach(trId => {
+                const tr = systemData.transformers[trId];
+                html += `
+                    <button style="
+                        display: block;
+                        width: 100%;
+                        padding: 10px;
+                        margin: 5px 0;
+                        border: 1px solid #ddd;
+                        background: #f9f9f9;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        text-align: left;
+                    " onclick="selectTransformer('${trId}')">
+                        🔌 ${tr.title} (${tr.capacity}kVA)
+                    </button>
+                `;
+            });
+
+            html += `</div>
+                <button style="
+                    padding: 8px 16px;
+                    background: #ccc;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    float: right;
+                " onclick="closeSelectionModal()">취소</button>
+            `;
+
+            modalContent.innerHTML = html;
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+
+            // 전역에서 접근 가능하도록 저장
+            window.currentSelectionModal = modal;
+        }
+
+        function selectTransformer(transformerId) {
+            addMCCToTransformer(transformerId);
+            closeSelectionModal();
+        }
+
+        function closeSelectionModal() {
+            if (window.currentSelectionModal) {
+                document.body.removeChild(window.currentSelectionModal);
+                window.currentSelectionModal = null;
+            }
+        }
+
+        function addMCCToTransformer(transformerId) {
+            const transformerNumber = getTransformerNumber(transformerId);
+
+            // 해당 변압기에 연결된 기존 분전반 개수 계산
+            const existingPanels = systemData.connections.transformerToPanels[transformerId] || [];
+            const panelSequence = existingPanels.length + 1;
+
+            mccCounter++;
+            const mccId = 'mcc' + mccCounter;
+
+            // 계층적 번호 체계로 분전반 추가 (X-Y 형식)
+            systemData.panels[mccId] = {
+                id: mccId,
+                title: `분전${transformerNumber}-${panelSequence}`,
+                name: `MCC-${transformerNumber}-${panelSequence} 동력반`,
+                ratedCurrent: 2000,
+                branches: 20,
+                purpose: '동력반',
+                status: 'empty'
+            };
+
+            // 연결정보 업데이트
+            if (!systemData.connections.transformerToPanels[transformerId]) {
+                systemData.connections.transformerToPanels[transformerId] = [];
+            }
+            systemData.connections.transformerToPanels[transformerId].push(mccId);
+
+            // DOM에 노드 추가
+            addMCCNode(mccId);
+            updateStatistics();
+            redrawConnections();
+        }
+
+        // 부하 추가
+        function addLoad() {
+            // 분전반이 있는지 확인
+            if (Object.keys(systemData.panels).length === 0) {
+                alert('먼저 분전반을 추가해주세요.');
+                return;
+            }
+
+            // 분전반이 1개면 자동 연결, 여러 개면 선택
+            const panelIds = Object.keys(systemData.panels);
+            if (panelIds.length === 1) {
+                // 분전반이 1개면 바로 추가
+                addLoadToPanel(panelIds[0]);
+            } else {
+                // 분전반이 여러 개면 선택 모달 표시
+                showPanelSelectionModal();
+            }
+        }
+
+        function showPanelSelectionModal() {
+            // 선택 모달 생성
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed;
+                top: 0;
+                left: 0;
+                width: 100%;
+                height: 100%;
+                background: rgba(0,0,0,0.5);
+                display: flex;
+                justify-content: center;
+                align-items: center;
+                z-index: 1000;
+            `;
+
+            const modalContent = document.createElement('div');
+            modalContent.style.cssText = `
+                background: white;
+                padding: 20px;
+                border-radius: 10px;
+                max-width: 400px;
+                width: 90%;
+            `;
+
+            let html = '<h3>연결할 분전반을 선택하세요</h3><div style="margin: 15px 0;">';
+
+            Object.keys(systemData.panels).forEach(panelId => {
+                const panel = systemData.panels[panelId];
+                html += `
+                    <button style="
+                        display: block;
+                        width: 100%;
+                        padding: 10px;
+                        margin: 5px 0;
+                        border: 1px solid #ddd;
+                        background: #f9f9f9;
+                        border-radius: 5px;
+                        cursor: pointer;
+                        text-align: left;
+                    " onclick="selectPanel('${panelId}')">
+                        📊 ${panel.title} (${panel.ratedCurrent}A)
+                    </button>
+                `;
+            });
+
+            html += `</div>
+                <button style="
+                    padding: 8px 16px;
+                    background: #ccc;
+                    border: none;
+                    border-radius: 5px;
+                    cursor: pointer;
+                    float: right;
+                " onclick="closeSelectionModal()">취소</button>
+            `;
+
+            modalContent.innerHTML = html;
+            modal.appendChild(modalContent);
+            document.body.appendChild(modal);
+
+            // 전역에서 접근 가능하도록 저장
+            window.currentSelectionModal = modal;
+        }
+
+        function selectPanel(panelId) {
+            addLoadToPanel(panelId);
+            closeSelectionModal();
+        }
+
+        function addLoadToPanel(panelId) {
+            const panel = systemData.panels[panelId];
+            const panelNumbers = getPanelNumbers(panel.title); // [변압기번호, 분전반번호]
+
+            // 해당 분전반에 연결된 기존 부하 개수 계산
+            const existingLoads = systemData.connections.panelToLoads[panelId] || [];
+            const loadSequence = existingLoads.length + 1;
+
+            loadCounter++;
+            const loadId = 'load' + loadCounter;
+
+            // 계층적 번호 체계로 부하 추가 (X-Y-Z 형식)
+            systemData.loads[loadId] = {
+                id: loadId,
+                title: `부하${panelNumbers[0]}-${panelNumbers[1]}-${loadSequence}`,
+                name: `냉동기`,
+                power: 500,
+                quantity: 1,
+                type: '정전압부하',
+                operation: '24시간',
+                status: 'empty'
+            };
+
+            // 연결정보 업데이트
+            if (!systemData.connections.panelToLoads[panelId]) {
+                systemData.connections.panelToLoads[panelId] = [];
+            }
+            systemData.connections.panelToLoads[panelId].push(loadId);
+
+            // DOM에 노드 추가
+            addLoadNode(loadId);
+            updateStatistics();
+            redrawConnections();
+        }
+
+        // 추가 확인
+        function confirmAdd() {
+            if (currentModalType === 'transformer') {
+                const name = document.getElementById('newTrName').value || `변압기 #${transformerCounter + 1}`;
+                const capacity = parseInt(document.getElementById('newTrCapacity').value) || 1000;
+                const primaryV = parseInt(document.getElementById('newTrPrimaryV').value) || 22900;
+                const secondaryV = document.getElementById('newTrSecondaryV').value;
+                const type = document.getElementById('newTrType').value;
+                
+                transformerCounter++;
+                const trId = `tr${transformerCounter}`;
+                
+                systemData.transformers[trId] = {
+                    id: trId,
+                    title: name,
+                    capacity: capacity,
+                    primaryVoltage: primaryV,
+                    secondaryVoltage: secondaryV,
+                    type: type,
+                    loadRate: 0,
+                    status: 'empty'
+                };
+                
+                // DOM에 노드 추가
+                addTransformerNode(trId);
+                
+            } else if (currentModalType === 'mcc') {
+                const transformerId = document.getElementById('newMccTransformer').value;
+                if (!transformerId) {
+                    alert('변압기를 선택해주세요.');
+                    return;
+                }
+                
+                const name = document.getElementById('newMccName').value || `MCC-${mccCounter + 1}`;
+                const breaker = parseInt(document.getElementById('newMccBreaker').value) || 1000;
+                const branches = parseInt(document.getElementById('newMccBranches').value) || 10;
+                const purpose = document.getElementById('newMccPurpose').value;
+                
+                mccCounter++;
+                const mccId = `mcc${mccCounter}`;
+                
+                systemData.panels[mccId] = {
+                    id: mccId,
+                    title: name,
+                    transformer: transformerId,
+                    mainBreaker: breaker,
+                    branches: branches,
+                    purpose: purpose,
+                    spareBranches: 0,
+                    status: 'empty'
+                };
+                
+                // 연결 정보 저장
+                if (!systemData.connections.transformerToPanels[transformerId]) {
+                    systemData.connections.transformerToPanels[transformerId] = [];
+                }
+                systemData.connections.transformerToPanels[transformerId].push(mccId);
+                
+                // DOM에 노드 추가
+                addMCCNode(mccId);
+                
+            } else if (currentModalType === 'load') {
+                const panelId = document.getElementById('newLoadPanel').value;
+                if (!panelId) {
+                    alert('분전반을 선택해주세요.');
+                    return;
+                }
+                
+                const name = document.getElementById('newLoadName').value || `부하 #${loadCounter + 1}`;
+                const capacity = parseInt(document.getElementById('newLoadCapacity').value) || 100;
+                const quantity = parseInt(document.getElementById('newLoadQuantity').value) || 1;
+                const type = document.getElementById('newLoadType').value;
+                const operation = document.getElementById('newLoadOperation').value;
+                
+                loadCounter++;
+                const loadId = `load${loadCounter}`;
+                
+                systemData.loads[loadId] = {
+                    id: loadId,
+                    title: name,
+                    panel: panelId,
+                    capacity: capacity,
+                    quantity: quantity,
+                    type: type,
+                    operationHours: operation,
+                    loadRate: 80,
+                    status: 'empty'
+                };
+                
+                // 연결 정보 저장
+                if (!systemData.connections.panelToLoads[panelId]) {
+                    systemData.connections.panelToLoads[panelId] = [];
+                }
+                systemData.connections.panelToLoads[panelId].push(loadId);
+                
+                // DOM에 노드 추가
+                addLoadNode(loadId);
+            }
+            
+            closeModal();
+            updateStatistics();
+            redrawConnections();
+        }
+
+        // 변압기 노드 DOM 추가
+        function addTransformerNode(trId) {
+            const level2 = document.getElementById('level2');
+            const addBtn = level2.querySelector('.add-node');
+
+            const node = document.createElement('div');
+            node.className = 'tree-node';
+            node.id = trId;
+            node.onclick = () => openDetail(trId);
+
+            const tr = systemData.transformers[trId];
+            node.innerHTML = `
+                <div class="node-actions">
+                    <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${trId}')">✎</button>
+                    <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${trId}', 'transformer')">×</button>
+                </div>
+                <div class="node-title">🔌 ${tr.title}</div>
+                <div class="node-info">${tr.capacity}kVA</div>
+                <div class="node-status ${tr.status}">${tr.status === 'complete' ? '✓' : tr.status === 'incomplete' ? '!' : '-'}</div>
+            `;
+
+            level2.insertBefore(node, addBtn);
+
+            // 변압기 노드들을 번호 순서대로 자동 정렬
+            function getTransformerNumbers(title) {
+                const match = title.match(/변압기(\d+)/);
+                return match ? [parseInt(match[1])] : [0];
+            }
+            sortNodesByNumber(level2, getTransformerNumbers);
+        }
+
+        // MCC 노드 DOM 추가
+        function addMCCNode(mccId) {
+            const level3 = document.getElementById('level3');
+            const addBtn = level3.querySelector('.add-node');
+
+            const node = document.createElement('div');
+            node.className = 'tree-node';
+            node.id = mccId;
+            node.onclick = () => openDetail(mccId);
+
+            const mcc = systemData.panels[mccId];
+            node.innerHTML = `
+                <div class="node-actions">
+                    <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${mccId}')">✎</button>
+                    <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${mccId}', 'mcc')">×</button>
+                </div>
+                <div class="node-title">📊 ${mcc.title}</div>
+                <div class="node-info">${mcc.purpose}</div>
+                <div class="node-status ${mcc.status}">${mcc.status === 'complete' ? '✓' : mcc.status === 'incomplete' ? '!' : '-'}</div>
+            `;
+
+            level3.insertBefore(node, addBtn);
+
+            // 분전반 노드들을 번호 순서대로 자동 정렬
+            sortNodesByNumber(level3, getPanelNumbers);
+        }
+
+        // 부하 노드 DOM 추가
+        function addLoadNode(loadId) {
+            const level4 = document.getElementById('level4');
+            const addBtn = level4.querySelector('.add-node');
+
+            const node = document.createElement('div');
+            node.className = 'tree-node';
+            node.id = loadId;
+            node.onclick = () => openDetail(loadId);
+
+            const load = systemData.loads[loadId];
+            node.innerHTML = `
+                <div class="node-actions">
+                    <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${loadId}')">✎</button>
+                    <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${loadId}', 'load')">×</button>
+                </div>
+                <div class="node-title">⚙️ ${load.title}</div>
+                <div class="node-info">${load.power}kW×${load.quantity}</div>
+                <div class="node-status ${load.status}">${load.status === 'complete' ? '✓' : load.status === 'incomplete' ? '!' : '-'}</div>
+            `;
+
+            level4.insertBefore(node, addBtn);
+
+            // 부하 노드들을 번호 순서대로 자동 정렬
+            sortNodesByNumber(level4, getLoadNumbers);
+        }
+
+        // 노드 삭제
+        function deleteNode(nodeId, type) {
+            nodeToDelete = { id: nodeId, type: type };
+            
+            const dialog = document.getElementById('deleteConfirm');
+            const node = document.getElementById(nodeId);
+            
+            // 다이얼로그 위치 설정
+            const rect = node.getBoundingClientRect();
+            dialog.style.top = rect.top + 'px';
+            dialog.style.left = (rect.left - 200) + 'px';
+            
+            dialog.classList.add('show');
+        }
+
+        // 삭제 확인
+        function confirmDelete() {
+            if (!nodeToDelete) return;
+            
+            const { id, type } = nodeToDelete;
+            
+            if (type === 'transformer') {
+                // 연결된 MCC들도 삭제
+                const connectedPanels = systemData.connections.transformerToPanels[id] || [];
+                connectedPanels.forEach(panelId => {
+                    // 연결된 부하들도 삭제
+                    const connectedLoads = systemData.connections.panelToLoads[panelId] || [];
+                    connectedLoads.forEach(loadId => {
+                        document.getElementById(loadId)?.remove();
+                        delete systemData.loads[loadId];
+                    });
+                    delete systemData.connections.panelToLoads[panelId];
+                    
+                    document.getElementById(panelId)?.remove();
+                    delete systemData.panels[panelId];
+                });
+                delete systemData.connections.transformerToPanels[id];
+                
+                delete systemData.transformers[id];
+                
+            } else if (type === 'mcc') {
+                // 연결된 부하들도 삭제
+                const connectedLoads = systemData.connections.panelToLoads[id] || [];
+                connectedLoads.forEach(loadId => {
+                    document.getElementById(loadId)?.remove();
+                    delete systemData.loads[loadId];
+                });
+                delete systemData.connections.panelToLoads[id];
+                
+                // 변압기 연결 정보에서 제거
+                Object.keys(systemData.connections.transformerToPanels).forEach(trId => {
+                    const panels = systemData.connections.transformerToPanels[trId];
+                    const index = panels.indexOf(id);
+                    if (index > -1) {
+                        panels.splice(index, 1);
+                    }
+                });
+                
+                delete systemData.panels[id];
+                
+            } else if (type === 'load') {
+                // 분전반 연결 정보에서 제거
+                Object.keys(systemData.connections.panelToLoads).forEach(panelId => {
+                    const loads = systemData.connections.panelToLoads[panelId];
+                    const index = loads.indexOf(id);
+                    if (index > -1) {
+                        loads.splice(index, 1);
+                    }
+                });
+                
+                delete systemData.loads[id];
+            }
+            
+            // DOM에서 제거
+            document.getElementById(id)?.remove();
+            
+            cancelDelete();
+            updateStatistics();
+            redrawConnections();
+        }
+
+        // 삭제 취소
+        function cancelDelete() {
+            document.getElementById('deleteConfirm').classList.remove('show');
+            nodeToDelete = null;
+        }
+
+        // showNodeDetail 함수 (openDetail의 별칭)
+        function showNodeDetail(nodeId) {
+            openDetail(nodeId);
+        }
+
+        // 상세 정보 열기
+        function openDetail(nodeId) {
+            const panel = document.getElementById('detailPanel');
+            const content = document.getElementById('detailContent');
+            const title = document.getElementById('detailTitle');
+            
+            // 노드 선택 표시
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            const currentNode = document.getElementById(nodeId);
+            if (currentNode) {
+                currentNode.classList.add('selected');
+            }
+            selectedNode = nodeId;
+            
+            let detailHTML = '';
+            
+            if (nodeId === 'kepco') {
+                title.textContent = '한전 수전 설비';
+                detailHTML = `
+                    <div class="detail-form-group">
+                        <label>수전 전압</label>
+                        <select class="detail-form-control" id="kepcoVoltage">
+                            <option>22.9kV</option>
+                            <option>6.6kV</option>
+                            <option>154kV</option>
+                        </select>
+                    </div>
+                    <div class="detail-form-group">
+                        <label>계약전력 (kW)</label>
+                        <input type="number" class="detail-form-control" id="kepcoContract" value="${systemData.kepco.contractPower}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>수전 방식</label>
+                        <select class="detail-form-control" id="kepcoReception">
+                            <option>단일수전</option>
+                            <option>이중수전</option>
+                            <option>루프수전</option>
+                        </select>
+                    </div>
+                    <div class="detail-form-group">
+                        <label>VCB 사양</label>
+                        <input type="text" class="detail-form-control" id="kepcoVCB" value="${systemData.kepco.vcb}" placeholder="예: LS VL-25 / 1250A">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>현장 사진</label>
+                        <button class="photo-btn" onclick="addPhoto('kepco')">📸 사진 촬영</button>
+                        <div class="node-photos" id="detail-photos-kepco" style="margin-top: 10px; max-width: 100%;"></div>
+                    </div>
+                `;
+            } else if (nodeId.startsWith('tr')) {
+                const tr = systemData.transformers[nodeId];
+                if (!tr) return;
+                
+                title.textContent = tr.title;
+                detailHTML = `
+                    <div class="detail-form-group">
+                        <label>변압기 명칭</label>
+                        <input type="text" class="detail-form-control" id="editTrName" value="${tr.title}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>용량 (kVA)</label>
+                        <input type="number" class="detail-form-control" id="editTrCapacity" value="${tr.capacity}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>부하율 (%)</label>
+                        <input type="number" class="detail-form-control" id="editTrLoadRate" value="${tr.loadRate}" min="0" max="100">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>변압기 타입</label>
+                        <select class="detail-form-control" id="editTrType">
+                            <option ${tr.type === 'Oil' ? 'selected' : ''}>Oil</option>
+                            <option ${tr.type === 'Dry' ? 'selected' : ''}>Dry</option>
+                            <option ${tr.type === 'Mold' ? 'selected' : ''}>Mold</option>
+                        </select>
+                    </div>
+                    <div class="detail-form-group">
+                        <label>제조사/제조년도</label>
+                        <input type="text" class="detail-form-control" placeholder="예: 현대/2020">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>현장 사진</label>
+                        <button class="photo-btn" onclick="addPhoto('${nodeId}')">📸 사진 촬영</button>
+                        <div class="node-photos" id="detail-photos-${nodeId}" style="margin-top: 10px; max-width: 100%;"></div>
+                    </div>
+                `;
+            } else if (nodeId.startsWith('mcc')) {
+                const mcc = systemData.panels[nodeId];
+                if (!mcc) return;
+                
+                title.textContent = mcc.title;
+                detailHTML = `
+                    <div class="detail-form-group">
+                        <label>분전반 명칭</label>
+                        <input type="text" class="detail-form-control" id="editMccName" value="${mcc.title}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>주차단기 (A)</label>
+                        <input type="number" class="detail-form-control" id="editMccBreaker" value="${mcc.mainBreaker}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>총 분기 수</label>
+                        <input type="number" class="detail-form-control" id="editMccBranches" value="${mcc.branches}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>예비 분기</label>
+                        <input type="number" class="detail-form-control" value="${mcc.spareBranches || 0}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>리액터 설치 공간</label>
+                        <select class="detail-form-control">
+                            <option>충분</option>
+                            <option>보통</option>
+                            <option>부족</option>
+                        </select>
+                    </div>
+                    <div class="detail-form-group">
+                        <label>현장 사진</label>
+                        <button class="photo-btn" onclick="addPhoto('${nodeId}')">📸 사진 촬영</button>
+                        <div class="node-photos" id="detail-photos-${nodeId}" style="margin-top: 10px; max-width: 100%;"></div>
+                    </div>
+                `;
+            } else if (nodeId.startsWith('load')) {
+                const load = systemData.loads[nodeId];
+                if (!load) return;
+                
+                title.textContent = load.title;
+                detailHTML = `
+                    <div class="detail-form-group">
+                        <label>부하 명칭</label>
+                        <input type="text" class="detail-form-control" id="editLoadName" value="${load.title}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>단위 용량 (kW)</label>
+                        <input type="number" class="detail-form-control" id="editLoadCapacity" value="${load.capacity}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>수량</label>
+                        <input type="number" class="detail-form-control" id="editLoadQuantity" value="${load.quantity}">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>부하율 (%)</label>
+                        <input type="number" class="detail-form-control" value="${load.loadRate}" min="0" max="100">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>운전 시간</label>
+                        <select class="detail-form-control">
+                            <option ${load.operationHours === '24시간' ? 'selected' : ''}>24시간</option>
+                            <option ${load.operationHours === '주간(8H)' ? 'selected' : ''}>주간(8H)</option>
+                            <option ${load.operationHours === '2교대(16H)' ? 'selected' : ''}>2교대(16H)</option>
+                            <option ${load.operationHours === '간헐적' ? 'selected' : ''}>간헐적</option>
+                        </select>
+                    </div>
+                    <div class="detail-form-group">
+                        <label>현장 사진</label>
+                        <button class="photo-btn" onclick="addPhoto('${nodeId}')">📸 사진 촬영</button>
+                        <div class="node-photos" id="detail-photos-${nodeId}" style="margin-top: 10px; max-width: 100%;"></div>
+                    </div>
+                `;
+            }
+            
+            detailHTML += `
+                <div style="margin-top: 30px; padding-top: 20px; border-top: 1px solid #e0e0e0;">
+                    <button class="btn btn-success" style="width: 100%;" onclick="saveNodeData('${nodeId}')">
+                        💾 저장
+                    </button>
+                </div>
+            `;
+            
+            content.innerHTML = detailHTML;
+            panel.classList.add('open');
+
+            // 상세 패널에서 사진 표시 업데이트
+            setTimeout(() => {
+                updateDetailPhotoDisplay(nodeId);
+                redrawConnections(); // 패널 열림 후 연결선 다시 그리기
+            }, 100);
+        }
+
+        // 노드 데이터 저장
+        function saveNodeData(nodeId) {
+            if (nodeId === 'kepco') {
+                systemData.kepco.contractPower = parseInt(document.getElementById('kepcoContract').value) || 0;
+                systemData.kepco.voltage = document.getElementById('kepcoVoltage').value;
+                systemData.kepco.receptionType = document.getElementById('kepcoReception').value;
+                systemData.kepco.vcb = document.getElementById('kepcoVCB').value;
+                systemData.kepco.status = 'complete';
+                
+                // 노드 업데이트
+                const node = document.getElementById('kepco');
+                node.querySelector('.node-info').textContent = `${systemData.kepco.voltage} / ${systemData.kepco.contractPower}kW`;
+                node.querySelector('.node-status').textContent = '✓';
+                node.querySelector('.node-status').className = 'node-status';
+                
+            } else if (nodeId.startsWith('tr')) {
+                const tr = systemData.transformers[nodeId];
+                tr.title = document.getElementById('editTrName').value;
+                tr.capacity = parseInt(document.getElementById('editTrCapacity').value);
+                tr.loadRate = parseInt(document.getElementById('editTrLoadRate').value);
+                tr.type = document.getElementById('editTrType').value;
+                tr.status = 'complete';
+                
+                // 노드 업데이트
+                const node = document.getElementById(nodeId);
+                node.querySelector('.node-title').textContent = `🔌 ${tr.title}`;
+                node.querySelector('.node-info').textContent = `${tr.capacity}kVA`;
+                node.querySelector('.node-status').textContent = '✓';
+                node.querySelector('.node-status').className = 'node-status';
+                
+            } else if (nodeId.startsWith('mcc')) {
+                const mcc = systemData.panels[nodeId];
+                mcc.title = document.getElementById('editMccName').value;
+                mcc.mainBreaker = parseInt(document.getElementById('editMccBreaker').value);
+                mcc.branches = parseInt(document.getElementById('editMccBranches').value);
+                mcc.status = 'complete';
+                
+                // 노드 업데이트
+                const node = document.getElementById(nodeId);
+                node.querySelector('.node-title').textContent = `📊 ${mcc.title}`;
+                node.querySelector('.node-status').textContent = '✓';
+                node.querySelector('.node-status').className = 'node-status';
+                
+            } else if (nodeId.startsWith('load')) {
+                const load = systemData.loads[nodeId];
+                load.title = document.getElementById('editLoadName').value;
+                load.capacity = parseInt(document.getElementById('editLoadCapacity').value);
+                load.quantity = parseInt(document.getElementById('editLoadQuantity').value);
+                load.status = 'complete';
+                
+                // 노드 업데이트
+                const node = document.getElementById(nodeId);
+                node.querySelector('.node-title').textContent = `⚙️ ${load.title}`;
+                node.querySelector('.node-info').textContent = `${load.capacity}kW×${load.quantity}`;
+                node.querySelector('.node-status').textContent = '✓';
+                node.querySelector('.node-status').className = 'node-status';
+            }
+            
+            closeDetail();
+            updateStatistics();
+        }
+
+        // 상세 패널 닫기
+        function closeDetail() {
+            document.getElementById('detailPanel').classList.remove('open');
+            document.querySelectorAll('.tree-node').forEach(node => {
+                node.classList.remove('selected');
+            });
+            selectedNode = null;
+
+            // 패널 닫힘 후 연결선 다시 그리기
+            setTimeout(() => {
+                redrawConnections();
+            }, 300); // 패널 닫힘 애니메이션 대기
+        }
+
+        // 모달 닫기
+        function closeModal() {
+            document.getElementById('addModal').classList.remove('show');
+            currentModalType = null;
+        }
+
+        // 통계 업데이트
+        function updateStatistics() {
+            // 계약전력
+            document.getElementById('contractPowerStat').textContent = systemData.kepco.contractPower.toLocaleString();
+            
+            // 변압기 대수
+            const transformerCount = Object.keys(systemData.transformers).length;
+            document.getElementById('transformerCount').textContent = transformerCount;
+            
+            // 총 설비용량
+            let totalCapacity = 0;
+            Object.values(systemData.transformers).forEach(tr => {
+                totalCapacity += tr.capacity;
+            });
+            document.getElementById('totalCapacityStat').textContent = totalCapacity.toLocaleString();
+            
+            // 권장 리액터 용량 계산
+            if (systemData.kepco.contractPower > 0) {
+                let avgLoadRate = 0;
+                let count = 0;
+                Object.values(systemData.transformers).forEach(tr => {
+                    if (tr.loadRate > 0) {
+                        avgLoadRate += tr.loadRate;
+                        count++;
+                    }
+                });
+                avgLoadRate = count > 0 ? avgLoadRate / count : 75; // 기본값 75%
+                
+                const recommendedReactor = Math.round(systemData.kepco.contractPower * 0.3 * (avgLoadRate / 100));
+                document.getElementById('recommendedReactor').textContent = recommendedReactor.toLocaleString();
+            }
+            
+            updateProgress();
+        }
+
+        // 진행률 업데이트
+        function updateProgress() {
+            let completed = 0;
+            let total = 1; // kepco
+            
+            if (systemData.kepco.status === 'complete') completed++;
+            
+            Object.values(systemData.transformers).forEach(tr => {
+                total++;
+                if (tr.status === 'complete') completed++;
+            });
+            
+            Object.values(systemData.panels).forEach(panel => {
+                total++;
+                if (panel.status === 'complete') completed++;
+            });
+            
+            Object.values(systemData.loads).forEach(load => {
+                total++;
+                if (load.status === 'complete') completed++;
+            });
+            
+            const progress = total > 0 ? (completed / total * 100).toFixed(0) : 0;
+            const progressBar = document.getElementById('progressBar');
+            progressBar.style.width = progress + '%';
+            progressBar.innerHTML = `<span>조사 진행률: ${progress}%</span>`;
+        }
+
+        // 연결선 다시 그리기
+        function redrawConnections() {
+            const svg = document.getElementById('treeSvg');
+            svg.innerHTML = '';
+            
+            // 한전 -> 변압기
+            Object.keys(systemData.transformers).forEach(trId => {
+                drawLine(svg, 'kepco', trId);
+            });
+            
+            // 변압기 -> 분전반
+            Object.keys(systemData.connections.transformerToPanels).forEach(trId => {
+                const panels = systemData.connections.transformerToPanels[trId];
+                panels.forEach(panelId => {
+                    drawLine(svg, trId, panelId);
+                });
+            });
+            
+            // 분전반 -> 부하
+            Object.keys(systemData.connections.panelToLoads).forEach(panelId => {
+                const loads = systemData.connections.panelToLoads[panelId];
+                loads.forEach(loadId => {
+                    drawLine(svg, panelId, loadId);
+                });
+            });
+        }
+
+        // 선 그리기
+        function drawLine(svg, fromId, toId) {
+            const from = document.getElementById(fromId);
+            const to = document.getElementById(toId);
+            
+            if (!from || !to) return;
+            
+            const fromRect = from.getBoundingClientRect();
+            const toRect = to.getBoundingClientRect();
+            const svgRect = svg.getBoundingClientRect();
+            
+            const x1 = fromRect.left + fromRect.width / 2 - svgRect.left;
+            const y1 = fromRect.bottom - svgRect.top;
+            const x2 = toRect.left + toRect.width / 2 - svgRect.left;
+            const y2 = toRect.top - svgRect.top;
+            
+            const path = document.createElementNS('http://www.w3.org/2000/svg', 'path');
+            const d = `M ${x1} ${y1} C ${x1} ${y1 + 30}, ${x2} ${y2 - 30}, ${x2} ${y2}`;
+            path.setAttribute('d', d);
+            path.setAttribute('class', 'tree-path');
+            path.setAttribute('id', `path-${fromId}-${toId}`);
+            
+            svg.appendChild(path);
+        }
+
+        // 데이터 저장
+        function saveData() {
+            localStorage.setItem('reactorSurveyData', JSON.stringify(systemData));
+            alert('✅ 데이터가 저장되었습니다.');
+        }
+
+        // 데이터 내보내기
+        function exportData() {
+            const dataStr = JSON.stringify(systemData, null, 2);
+            const dataBlob = new Blob([dataStr], { type: 'application/json' });
+            const url = URL.createObjectURL(dataBlob);
+            const link = document.createElement('a');
+            link.href = url;
+            link.download = `reactor_survey_${new Date().toISOString().slice(0,10)}.json`;
+            link.click();
+        }
+
+        // 데이터 가져오기
+        function importData() {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = '.json';
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                const reader = new FileReader();
+                reader.onload = (e) => {
+                    try {
+                        systemData = JSON.parse(e.target.result);
+                        location.reload(); // 간단히 새로고침으로 처리
+                    } catch (err) {
+                        alert('파일을 읽을 수 없습니다.');
+                    }
+                };
+                reader.readAsText(file);
+            };
+            input.click();
+        }
+
+        // 자동 계산
+        function autoCalculate() {
+            // 변압기 부하율 자동 계산
+            Object.keys(systemData.transformers).forEach(trId => {
+                const connectedPanels = systemData.connections.transformerToPanels[trId] || [];
+                let totalLoad = 0;
+                
+                connectedPanels.forEach(panelId => {
+                    const connectedLoads = systemData.connections.panelToLoads[panelId] || [];
+                    connectedLoads.forEach(loadId => {
+                        const load = systemData.loads[loadId];
+                        if (load) {
+                            totalLoad += load.capacity * load.quantity * (load.loadRate / 100);
+                        }
+                    });
+                });
+                
+                const tr = systemData.transformers[trId];
+                tr.loadRate = Math.min(100, Math.round(totalLoad / tr.capacity * 100));
+            });
+            
+            updateStatistics();
+            alert('✅ 자동 계산이 완료되었습니다.');
+        }
+
+        // 초기화
+        function resetAll() {
+            if (confirm('모든 데이터를 초기화하시겠습니까?')) {
+                systemData = {
+                    kepco: {
+                        voltage: '22.9kV',
+                        contractPower: 0,
+                        receptionType: '',
+                        vcb: '',
+                        status: 'empty'
+                    },
+                    transformers: {},
+                    panels: {},
+                    loads: {},
+                    images: {},
+                    connections: {
+                        transformerToPanels: {},
+                        panelToLoads: {}
+                    }
+                };
+                
+                transformerCounter = 0;
+                mccCounter = 0;
+                loadCounter = 0;
+                
+                location.reload();
+            }
+        }
+
+        // 썸네일 생성 함수
+        function createThumbnail(file, callback) {
+            const reader = new FileReader();
+            reader.onload = (e) => {
+                const img = new Image();
+                img.onload = () => {
+                    const canvas = document.createElement('canvas');
+                    const ctx = canvas.getContext('2d');
+
+                    // 썸네일 크기 설정 (400x300 최대, 비율 유지)
+                    const MAX_WIDTH = 400;
+                    const MAX_HEIGHT = 300;
+
+                    let width = img.width;
+                    let height = img.height;
+
+                    // 비율 유지하며 리사이즈
+                    if (width > height) {
+                        if (width > MAX_WIDTH) {
+                            height = (MAX_WIDTH / width) * height;
+                            width = MAX_WIDTH;
+                        }
+                    } else {
+                        if (height > MAX_HEIGHT) {
+                            width = (MAX_HEIGHT / height) * width;
+                            height = MAX_HEIGHT;
+                        }
+                    }
+
+                    canvas.width = width;
+                    canvas.height = height;
+                    ctx.drawImage(img, 0, 0, width, height);
+
+                    // JPEG 품질 60% (썸네일용)
+                    const thumbnail = canvas.toDataURL('image/jpeg', 0.6);
+                    callback(thumbnail);
+                };
+                img.src = e.target.result;
+            };
+            reader.readAsDataURL(file);
+        }
+
+        // 사진 촬영 기능 (썸네일 방식)
+        function addPhoto(nodeId) {
+            const input = document.createElement('input');
+            input.type = 'file';
+            input.accept = 'image/*';
+            input.capture = 'camera';
+            input.style.display = 'none';
+
+            input.onchange = (e) => {
+                const file = e.target.files[0];
+                if (file) {
+                    // 썸네일 생성
+                    createThumbnail(file, (thumbnailData) => {
+                        // 현재 시간을 YYYYMMDD_HHMMSS 형식으로
+                        const now = new Date();
+                        const timestamp = now.toISOString().replace(/[:.]/g, '-').slice(0, -5);
+
+                        // 이미지 데이터를 systemData에 저장 (썸네일 + 메타데이터)
+                        if (!systemData.images[nodeId]) {
+                            systemData.images[nodeId] = [];
+                        }
+
+                        systemData.images[nodeId].push({
+                            thumbnail: thumbnailData,           // 썸네일 (30-50KB)
+                            originalName: file.name,            // 원본 파일명
+                            timestamp: now.toISOString(),       // ISO 형식 시간
+                            displayTime: now.toLocaleString(),  // 화면 표시용 시간
+                            size: Math.round(file.size / 1024) + 'KB', // 원본 크기
+                            nodeId: nodeId                      // 노드 ID 참조
+                        });
+
+                        alert(`📸 사진이 추가되었습니다!\n원본: ${file.name} (${Math.round(file.size/1024)}KB)\n썸네일로 저장됨`);
+                        updatePhotoDisplay(nodeId);
+                        updateDetailPhotoDisplay(nodeId);
+                        redrawConnections(); // 연결선 다시 그리기
+                    });
+                }
+            };
+
+            document.body.appendChild(input);
+            input.click();
+            document.body.removeChild(input);
+        }
+
+        // 사진 표시 업데이트 (트리 노드용)
+        function updatePhotoDisplay(nodeId) {
+            const photoContainer = document.getElementById(`photos-${nodeId}`);
+            if (!photoContainer) return;
+
+            photoContainer.innerHTML = '';
+            const images = systemData.images[nodeId] || [];
+
+            images.forEach((img, index) => {
+                const imgElement = document.createElement('img');
+                imgElement.src = img.thumbnail || img.data; // 썸네일 우선, 기존 data 호환
+                imgElement.style.cssText = 'width: 40px; height: 40px; object-fit: cover; margin: 2px; border-radius: 4px; cursor: pointer;';
+                imgElement.title = `${img.originalName || 'photo'} (${img.displayTime || ''})`;
+                imgElement.onclick = () => viewFullImage(img.thumbnail || img.data);
+                photoContainer.appendChild(imgElement);
+            });
+
+            // DOM 변경 후 연결선 다시 그리기
+            setTimeout(() => {
+                redrawConnections();
+            }, 50);
+        }
+
+        // 상세 패널에서 사진 표시 업데이트
+        function updateDetailPhotoDisplay(nodeId) {
+            const detailPhotoContainer = document.getElementById(`detail-photos-${nodeId}`);
+            if (!detailPhotoContainer) return;
+
+            detailPhotoContainer.innerHTML = '';
+            const images = systemData.images[nodeId] || [];
+
+            if (images.length === 0) {
+                detailPhotoContainer.innerHTML = '<div style="color: #666; font-size: 12px; padding: 10px;">촬영된 사진이 없습니다.</div>';
+                return;
+            }
+
+            images.forEach((img, index) => {
+                const imgWrapper = document.createElement('div');
+                imgWrapper.style.cssText = 'display: inline-block; position: relative; margin: 4px; background: #f8f8f8; border-radius: 8px; padding: 4px;';
+
+                const imgElement = document.createElement('img');
+                imgElement.src = img.thumbnail || img.data; // 썸네일 우선, 기존 data 호환
+                imgElement.style.cssText = 'width: 80px; height: 80px; object-fit: cover; border-radius: 6px; cursor: pointer; border: 2px solid #ddd;';
+                imgElement.title = `원본: ${img.originalName || 'photo'}\n크기: ${img.size || 'unknown'}\n촬영: ${img.displayTime || ''}`;
+                imgElement.onclick = () => viewFullImage(img.thumbnail || img.data);
+
+                // 사진 정보 표시
+                const infoDiv = document.createElement('div');
+                infoDiv.style.cssText = 'font-size: 10px; color: #666; text-align: center; margin-top: 2px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
+                infoDiv.textContent = img.originalName || `Photo ${index + 1}`;
+                infoDiv.title = `원본: ${img.originalName || 'photo'}\n크기: ${img.size || 'unknown'}\n촬영: ${img.displayTime || ''}`;
+
+                // 삭제 버튼
+                const deleteBtn = document.createElement('button');
+                deleteBtn.innerHTML = '×';
+                deleteBtn.style.cssText = `
+                    position: absolute; top: -2px; right: -2px; width: 18px; height: 18px;
+                    border-radius: 50%; background: #f44336; color: white; border: none;
+                    cursor: pointer; font-size: 12px; display: flex; align-items: center;
+                    justify-content: center; box-shadow: 0 1px 3px rgba(0,0,0,0.3);
+                `;
+                deleteBtn.onclick = (e) => {
+                    e.stopPropagation();
+                    deletePhoto(nodeId, index);
+                };
+
+                imgWrapper.appendChild(imgElement);
+                imgWrapper.appendChild(infoDiv);
+                imgWrapper.appendChild(deleteBtn);
+                detailPhotoContainer.appendChild(imgWrapper);
+            });
+
+            // DOM 변경 후 연결선 다시 그리기
+            setTimeout(() => {
+                redrawConnections();
+            }, 50);
+        }
+
+        // 사진 삭제
+        function deletePhoto(nodeId, index) {
+            if (confirm('이 사진을 삭제하시겠습니까?')) {
+                systemData.images[nodeId].splice(index, 1);
+                updatePhotoDisplay(nodeId);
+                updateDetailPhotoDisplay(nodeId);
+                redrawConnections(); // 연결선 다시 그리기
+                alert('📸 사진이 삭제되었습니다.');
+            }
+        }
+
+        // 전체 이미지 보기
+        function viewFullImage(imageSrc) {
+            const modal = document.createElement('div');
+            modal.style.cssText = `
+                position: fixed; top: 0; left: 0; width: 100%; height: 100%;
+                background: rgba(0,0,0,0.9); z-index: 10000; display: flex;
+                justify-content: center; align-items: center; cursor: pointer;
+            `;
+
+            const img = document.createElement('img');
+            img.src = imageSrc;
+            img.style.cssText = 'max-width: 90%; max-height: 90%; object-fit: contain;';
+
+            modal.appendChild(img);
+            modal.onclick = () => document.body.removeChild(modal);
+            document.body.appendChild(modal);
+        }
+
+        // HTML 파일로 저장 (완전한 기능 포함)
+        function saveAsHTML() {
+            const companyName = prompt('업체명을 입력하세요:');
+            if (!companyName) return;
+
+            try {
+                // 저장할 데이터
+                const savedData = {
+                    systemData: systemData,
+                    companyName: companyName,
+                    saveDate: new Date().toISOString(),
+                    transformerCounter: transformerCounter,
+                    mccCounter: mccCounter,
+                    loadCounter: loadCounter
+                };
+
+                // 현재 페이지의 모든 JavaScript 코드 수집 (saveAsHTML 함수 제외)
+                const scriptContent = document.querySelector('script').textContent;
+                const allJavaScriptCode = scriptContent.replace(/\/\/\s*저장된 데이터 자동 로드[\s\S]*?(?=\/\/\s*업체정보 모달|$)/, '');
+
+                // CSS 스타일 추출
+                const styleTags = Array.from(document.querySelectorAll('style')).map(style => style.outerHTML).join('\n');
+
+                // 날짜 문자열 계산
+                const saveDateTime = new Date(savedData.saveDate).toLocaleString();
+
+                // 완전한 HTML 문서 생성
+                const finalHtml = `<!DOCTYPE html>
+<html lang="ko">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>원세이버스 리액터 설치 통합 조사 시스템 - ${companyName}</title>
+    ${styleTags}
+</head>
+<body>
+    ${document.body.innerHTML}
+
+    <script>
+        // 저장된 데이터 초기화
+        let systemData = ${JSON.stringify(savedData.systemData, null, 2)};
+        let transformerCounter = ${savedData.transformerCounter};
+        let mccCounter = ${savedData.mccCounter};
+        let loadCounter = ${savedData.loadCounter};
+        let selectedNode = null;
+        let selectedTransformer = null;
+        let selectedPanel = null;
+        let nodeToDelete = null;
+        let currentModalType = null;
+
+        // 모든 원본 함수들 포함
+        ${allJavaScriptCode.replace(/let systemData = \{[\s\S]*?\};/, '')}
+
+        // 페이지 로드 시 초기화
+        document.addEventListener('DOMContentLoaded', function() {
+            // 제목 업데이트
+            document.title = '원세이버스 리액터 설치 통합 조사 시스템 - ${companyName}';
+            const headerH1 = document.querySelector('.header h1');
+            if (headerH1) {
+                headerH1.textContent = '⚡ 원세이버스 리액터 설치 통합 조사 시스템 - ${companyName}';
+            }
+
+            // 통계 및 트리 업데이트
+            updateStatistics();
+
+            // SVG 설정 및 연결선 그리기
+            setTimeout(() => {
+                const diagram = document.getElementById('treeDiagram');
+                const svg = document.getElementById('treeSvg');
+                if (diagram && svg) {
+                    svg.setAttribute('width', diagram.offsetWidth);
+                    svg.setAttribute('height', diagram.offsetHeight);
+                }
+                redrawConnections();
+            }, 100);
+
+            // 모든 노드의 사진 표시 업데이트
+            Object.keys(systemData.images || {}).forEach(nodeId => {
+                updatePhotoDisplay(nodeId);
+            });
+
+            // 저장 완료 알림
+            setTimeout(() => {
+                alert('💾 저장된 데이터가 로드되었습니다!\\n업체명: ${companyName}\\n저장일: ${saveDateTime}');
+            }, 500);
+        });
+
+        // 창 크기 변경 시 연결선 다시 그리기
+        window.addEventListener('resize', () => {
+            if (typeof redrawConnections === 'function') {
+                redrawConnections();
+            }
+        });
+    </script>
+</body>
+</html>`;
+
+                // 파일 다운로드
+                const blob = new Blob([finalHtml], {type: 'text/html; charset=utf-8'});
+                const url = URL.createObjectURL(blob);
+                const a = document.createElement('a');
+                a.href = url;
+                a.download = `${companyName}_조사데이터.html`;
+                a.style.display = 'none';
+                document.body.appendChild(a);
+                a.click();
+                document.body.removeChild(a);
+                URL.revokeObjectURL(url);
+
+                alert(`✅ ${companyName}_조사데이터.html 파일이 저장되었습니다!\n모든 기능이 포함된 완전한 HTML 파일입니다.`);
+
+            } catch (error) {
+                console.error('HTML 저장 중 오류:', error);
+                alert('❌ HTML 저장 중 오류가 발생했습니다: ' + error.message);
+            }
+        }
+
+        // 저장된 데이터로부터 트리 재구성
+
+        // 업체정보 모달 열기
+        function openCompanyInfo() {
+            const modal = document.getElementById('companyInfoModal');
+
+            // 기존 데이터 로드
+            if (systemData.companyInfo) {
+                document.getElementById('companyName').value = systemData.companyInfo.name || '';
+                document.getElementById('companyAddress').value = systemData.companyInfo.address || '';
+                document.getElementById('companyContact').value = systemData.companyInfo.contact || '';
+                document.getElementById('companyManager').value = systemData.companyInfo.manager || '';
+                document.getElementById('surveyDate').value = systemData.companyInfo.surveyDate || '';
+                document.getElementById('contractDate').value = systemData.companyInfo.contractDate || '';
+                document.getElementById('companyNotes').value = systemData.companyInfo.notes || '';
+            }
+
+            modal.style.display = 'block';
+        }
+
+        // 업체정보 모달 닫기
+        function closeCompanyInfo() {
+            document.getElementById('companyInfoModal').style.display = 'none';
+        }
+
+        // 업체정보 저장
+        function saveCompanyInfo() {
+            systemData.companyInfo = {
+                name: document.getElementById('companyName').value,
+                address: document.getElementById('companyAddress').value,
+                contact: document.getElementById('companyContact').value,
+                manager: document.getElementById('companyManager').value,
+                surveyDate: document.getElementById('surveyDate').value,
+                contractDate: document.getElementById('contractDate').value,
+                notes: document.getElementById('companyNotes').value
+            };
+
+            alert('✅ 업체 정보가 저장되었습니다!');
+            closeCompanyInfo();
+
+            // 통계 업데이트
+            updateStatistics();
+        }
+
+        function rebuildTreeFromData() {
+            updateStatistics();
+        }
+
+        // 보고서 생성
+        function generateReport() {
+            let report = '=== 리액터 설치 현장조사 보고서 ===\n\n';
+            report += `조사일: ${new Date().toLocaleDateString()}\n\n`;
+
+            report += '1. 수전설비\n';
+            report += `   - 수전전압: ${systemData.kepco.voltage}\n`;
+            report += `   - 계약전력: ${systemData.kepco.contractPower}kW\n`;
+            report += `   - 수전방식: ${systemData.kepco.receptionType}\n\n`;
+
+            report += '2. 변압기 현황\n';
+            Object.values(systemData.transformers).forEach(tr => {
+                report += `   - ${tr.title}: ${tr.capacity}kVA (부하율 ${tr.loadRate}%)\n`;
+            });
+
+            report += '\n3. 권장 리액터 용량\n';
+            report += `   - ${document.getElementById('recommendedReactor').textContent}kVar\n`;
+
+            alert(report);
+        }
+
+        // 사진 대조표 생성 함수
+        function generatePhotoIndex() {
+            const allPhotos = [];
+
+            // 각 노드의 사진 수집
+            ['kepco', 'transformers', 'panels', 'loads'].forEach(nodeType => {
+                const nodes = nodeType === 'kepco' ? [systemData.kepco] : Object.values(systemData[nodeType]);
+
+                nodes.forEach(node => {
+                    if (node.images && node.images.length > 0) {
+                        node.images.forEach((photo, index) => {
+                            allPhotos.push({
+                                nodeId: node.id || 'kepco',
+                                nodeTitle: node.title || node.id || 'KEPCO 수전',
+                                photoIndex: index + 1,
+                                originalName: photo.originalName || '사진' + (index + 1),
+                                timestamp: photo.timestamp || new Date().toISOString(),
+                                displayTime: photo.displayTime || new Date(photo.timestamp).toLocaleString(),
+                                size: photo.size || 'Unknown'
+                            });
+                        });
+                    }
+                });
+            });
+
+            if (allPhotos.length === 0) {
+                alert('저장된 사진이 없습니다.');
+                return;
+            }
+
+            // CSV 생성
+            let csvContent = '번호,노드,사진번호,원본파일명,촬영시간,파일크기\n';
+            allPhotos.forEach((photo, index) => {
+                csvContent += `${index + 1},${photo.nodeTitle},${photo.photoIndex},${photo.originalName},${photo.displayTime},${photo.size}\n`;
+            });
+
+            // CSV 다운로드
+            const blob = new Blob([csvContent], { type: 'text/csv;charset=utf-8;' });
+            const url = URL.createObjectURL(blob);
+            const a = document.createElement('a');
+            a.href = url;
+            a.download = '사진대조표.csv';
+            a.click();
+            URL.revokeObjectURL(url);
+
+            // 미리보기 표시
+            showPhotoIndexPreview(allPhotos);
+        }
+
+        // 사진 대조표 미리보기 표시
+        function showPhotoIndexPreview(photos) {
+            let previewHtml = '<div style="max-height: 500px; overflow-y: auto; margin-top: 20px;">';
+            previewHtml += '<h3>📋 사진 대조표 미리보기</h3>';
+            previewHtml += '<table style="width: 100%; border-collapse: collapse; font-size: 12px;">';
+            previewHtml += '<tr style="background: #f0f0f0; font-weight: bold;">';
+            previewHtml += '<th style="border: 1px solid #ddd; padding: 8px;">번호</th>';
+            previewHtml += '<th style="border: 1px solid #ddd; padding: 8px;">노드</th>';
+            previewHtml += '<th style="border: 1px solid #ddd; padding: 8px;">사진번호</th>';
+            previewHtml += '<th style="border: 1px solid #ddd; padding: 8px;">원본파일명</th>';
+            previewHtml += '<th style="border: 1px solid #ddd; padding: 8px;">촬영시간</th>';
+            previewHtml += '<th style="border: 1px solid #ddd; padding: 8px;">파일크기</th>';
+            previewHtml += '</tr>';
+
+            photos.forEach((photo, index) => {
+                previewHtml += '<tr>';
+                previewHtml += `<td style="border: 1px solid #ddd; padding: 6px; text-align: center;">${index + 1}</td>`;
+                previewHtml += `<td style="border: 1px solid #ddd; padding: 6px;">${photo.nodeTitle}</td>`;
+                previewHtml += `<td style="border: 1px solid #ddd; padding: 6px; text-align: center;">${photo.photoIndex}</td>`;
+                previewHtml += `<td style="border: 1px solid #ddd; padding: 6px;">${photo.originalName}</td>`;
+                previewHtml += `<td style="border: 1px solid #ddd; padding: 6px;">${photo.displayTime}</td>`;
+                previewHtml += `<td style="border: 1px solid #ddd; padding: 6px;">${photo.size}</td>`;
+                previewHtml += '</tr>';
+            });
+
+            previewHtml += '</table>';
+            previewHtml += '<p style="margin-top: 15px; color: #666; font-size: 11px;">';
+            previewHtml += '💡 이 대조표를 사용해 썸네일과 원본 사진을 매칭하세요.<br>';
+            previewHtml += '📂 원본 사진들은 별도로 보관하고 필요시 대조표를 참고하여 찾으세요.';
+            previewHtml += '</p>';
+            previewHtml += '</div>';
+
+            // 새 창에서 미리보기 표시
+            const newWindow = window.open('', '_blank', 'width=800,height=600,scrollbars=yes');
+            newWindow.document.write(`
+                <html>
+                <head>
+                    <title>사진 대조표 미리보기</title>
+                    <meta charset="UTF-8">
+                </head>
+                <body style="font-family: Arial, sans-serif; margin: 20px;">
+                    ${previewHtml}
+                    <div style="margin-top: 20px; text-align: center;">
+                        <button onclick="window.close()" style="padding: 10px 20px; font-size: 14px;">창 닫기</button>
+                    </div>
+                </body>
+                </html>
+            `);
+            newWindow.document.close();
+
+            alert('✅ 사진 대조표 CSV 파일이 다운로드되었고, 미리보기 창이 열렸습니다!');
+        }
+
+        // 초기화
+        window.addEventListener('load', () => {
+            updateStatistics();
+
+            // SVG 크기 설정
+            setTimeout(() => {
+                const diagram = document.getElementById('treeDiagram');
+                const svg = document.getElementById('treeSvg');
+                if (diagram && svg) {
+                    svg.setAttribute('width', diagram.offsetWidth);
+                    svg.setAttribute('height', diagram.offsetHeight);
+                }
+            }, 100);
+        });
+
+        // 창 크기 변경시 연결선 다시 그리기
+        window.addEventListener('resize', () => {
+            if (typeof redrawConnections === 'function') {
+                redrawConnections();
+            }
+        });
+
+        // 키보드 단축키
+        document.addEventListener('keydown', (e) => {
+            if (e.key === 'Escape') {
+                closeDetail();
+                if (typeof closeModal === 'function') closeModal();
+                if (typeof cancelDelete === 'function') cancelDelete();
+            } else if (e.ctrlKey && e.key === 's') {
+                e.preventDefault();
+                if (typeof saveData === 'function') saveData();
+            }
+        });
+    </script>
+</body>
+</html>
