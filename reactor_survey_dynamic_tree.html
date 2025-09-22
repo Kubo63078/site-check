@@ -2217,10 +2217,10 @@
             const link = document.createElement('a');
             link.href = url;
 
-            // 업체명이 있으면 파일명에 포함, 없으면 기본 파일명 사용
-            const companyName = systemData.companyInfo.companyName || '현장조사';
-            const dateStr = new Date().toISOString().slice(0,10);
-            link.download = `${companyName}_현장조사_${dateStr}.json`;
+            // 업체명과 조사날짜로 파일명 생성
+            const companyName = systemData.companyInfo.name || '현장조사';
+            const dateStr = systemData.companyInfo.surveyDate || new Date().toISOString().slice(0,10);
+            link.download = `${companyName}_조사데이터_${dateStr}.json`;
             link.click();
         }
 
