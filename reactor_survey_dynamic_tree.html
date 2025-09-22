@@ -2588,8 +2588,8 @@
             const treeView = document.getElementById('treeView');
             if (!treeView) return;
 
-            // 기존 노드들 제거 (KEPCO와 통계 카드는 유지)
-            const existingNodes = treeView.querySelectorAll('.tree-node:not(#kepco)');
+            // 기존 노드들 제거 (KEPCO와 추가 버튼은 유지)
+            const existingNodes = treeView.querySelectorAll('.tree-node:not(#kepco):not(.add-node)');
             existingNodes.forEach(node => node.remove());
 
             // KEPCO 수전 정보 업데이트
