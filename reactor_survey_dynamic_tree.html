@@ -393,9 +393,11 @@
         /* 상세 정보 패널 */
         .detail-panel {
             position: fixed;
-            right: -450px;
+            right: -70vw;
             top: 0;
-            width: 450px;
+            width: 70vw;
+            max-width: 70%;
+            max-height: 70vh;
             height: 100vh;
             background: white;
             box-shadow: -5px 0 20px rgba(0,0,0,0.2);
@@ -403,6 +405,7 @@
             z-index: 1000;
             display: flex;
             flex-direction: column;
+            transform: scale(1) !important;
         }
 
         .detail-panel.open {
@@ -571,9 +574,9 @@
             background: white;
             border-radius: 15px;
             padding: 30px;
-            max-width: 500px;
-            width: 90%;
-            max-height: 80vh;
+            width: 70vw;
+            max-width: 70%;
+            max-height: 70vh;
             overflow-y: auto;
             animation: slideUp 0.3s;
         }
@@ -1827,6 +1830,7 @@
                             <option>22.9kV</option>
                             <option>6.6kV</option>
                             <option>154kV</option>
+                            <option>380V</option>
                         </select>
                     </div>
                     <div class="detail-form-group">
@@ -1834,16 +1838,8 @@
                         <input type="number" class="detail-form-control" id="kepcoContract" value="${systemData.kepco.contractPower}">
                     </div>
                     <div class="detail-form-group">
-                        <label>수전 방식</label>
-                        <select class="detail-form-control" id="kepcoReception">
-                            <option>단일수전</option>
-                            <option>이중수전</option>
-                            <option>루프수전</option>
-                        </select>
-                    </div>
-                    <div class="detail-form-group">
-                        <label>VCB 사양</label>
-                        <input type="text" class="detail-form-control" id="kepcoVCB" value="${systemData.kepco.vcb}" placeholder="예: LS VL-25 / 1250A">
+                        <label>차단기 (A)</label>
+                        <input type="number" class="detail-form-control" id="kepcoBreaker" value="${systemData.kepco.breaker || 0}">
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
@@ -1863,23 +1859,15 @@
                     </div>
                     <div class="detail-form-group">
                         <label>용량 (kVA)</label>
-                        <input type="number" class="detail-form-control" id="editTrCapacity" value="${tr.capacity}">
+                        <input type="number" class="detail-form-control" id="editTrCapacity" value="${tr.capacity || 0}">
                     </div>
                     <div class="detail-form-group">
                         <label>부하율 (%)</label>
                         <input type="number" class="detail-form-control" id="editTrLoadRate" value="${tr.loadRate}" min="0" max="100">
                     </div>
                     <div class="detail-form-group">
-                        <label>변압기 타입</label>
-                        <select class="detail-form-control" id="editTrType">
-                            <option ${tr.type === 'Oil' ? 'selected' : ''}>Oil</option>
-                            <option ${tr.type === 'Dry' ? 'selected' : ''}>Dry</option>
-                            <option ${tr.type === 'Mold' ? 'selected' : ''}>Mold</option>
-                        </select>
-                    </div>
-                    <div class="detail-form-group">
-                        <label>제조사/제조년도</label>
-                        <input type="text" class="detail-form-control" placeholder="예: 현대/2020">
+                        <label>차단기 (A)</label>
+                        <input type="number" class="detail-form-control" id="editTrBreaker" value="${tr.breaker || 0}">
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
@@ -1906,16 +1894,8 @@
                         <input type="number" class="detail-form-control" id="editMccBranches" value="${mcc.branches}">
                     </div>
                     <div class="detail-form-group">
-                        <label>예비 분기</label>
-                        <input type="number" class="detail-form-control" value="${mcc.spareBranches || 0}">
-                    </div>
-                    <div class="detail-form-group">
-                        <label>리액터 설치 공간</label>
-                        <select class="detail-form-control">
-                            <option>충분</option>
-                            <option>보통</option>
-                            <option>부족</option>
-                        </select>
+                        <label>부하율 (%)</label>
+                        <input type="number" class="detail-form-control" id="editMccLoadRate" value="${mcc.loadRate || 0}" min="0" max="100">
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
@@ -1934,20 +1914,12 @@
                         <input type="text" class="detail-form-control" id="editLoadName" value="${load.title}">
                     </div>
                     <div class="detail-form-group">
-                        <label>단위 용량 (kW)</label>
-                        <input type="number" class="detail-form-control" id="editLoadCapacity" value="${load.capacity}">
-                    </div>
-                    <div class="detail-form-group">
-                        <label>수량</label>
-                        <input type="number" class="detail-form-control" id="editLoadQuantity" value="${load.quantity}">
-                    </div>
-                    <div class="detail-form-group">
                         <label>부하율 (%)</label>
-                        <input type="number" class="detail-form-control" value="${load.loadRate}" min="0" max="100">
+                        <input type="number" class="detail-form-control" id="editLoadRate" value="${load.loadRate}" min="0" max="100">
                     </div>
                     <div class="detail-form-group">
                         <label>운전 시간</label>
-                        <select class="detail-form-control">
+                        <select class="detail-form-control" id="editLoadOperationHours">
                             <option ${load.operationHours === '24시간' ? 'selected' : ''}>24시간</option>
                             <option ${load.operationHours === '주간(8H)' ? 'selected' : ''}>주간(8H)</option>
                             <option ${load.operationHours === '2교대(16H)' ? 'selected' : ''}>2교대(16H)</option>
@@ -1994,8 +1966,7 @@
             if (nodeId === 'kepco') {
                 systemData.kepco.contractPower = parseInt(document.getElementById('kepcoContract').value) || 0;
                 systemData.kepco.voltage = document.getElementById('kepcoVoltage').value;
-                systemData.kepco.receptionType = document.getElementById('kepcoReception').value;
-                systemData.kepco.vcb = document.getElementById('kepcoVCB').value;
+                systemData.kepco.breaker = parseInt(document.getElementById('kepcoBreaker').value) || 0;
                 systemData.kepco.status = 'complete';
                 
                 // 노드 업데이트
@@ -2009,7 +1980,7 @@
                 tr.title = document.getElementById('editTrName').value;
                 tr.capacity = parseInt(document.getElementById('editTrCapacity').value);
                 tr.loadRate = parseInt(document.getElementById('editTrLoadRate').value);
-                tr.type = document.getElementById('editTrType').value;
+                tr.breaker = parseInt(document.getElementById('editTrBreaker').value) || 0;
                 tr.status = 'complete';
                 
                 // 노드 업데이트
@@ -2024,8 +1995,9 @@
                 mcc.title = document.getElementById('editMccName').value;
                 mcc.mainBreaker = parseInt(document.getElementById('editMccBreaker').value);
                 mcc.branches = parseInt(document.getElementById('editMccBranches').value);
+                mcc.loadRate = parseInt(document.getElementById('editMccLoadRate').value) || 0;
                 mcc.status = 'complete';
-                
+
                 // 노드 업데이트
                 const node = document.getElementById(nodeId);
                 node.querySelector('.node-title').textContent = `📊 ${mcc.title}`;
@@ -2035,14 +2007,14 @@
             } else if (nodeId.startsWith('load')) {
                 const load = systemData.loads[nodeId];
                 load.title = document.getElementById('editLoadName').value;
-                load.capacity = parseInt(document.getElementById('editLoadCapacity').value);
-                load.quantity = parseInt(document.getElementById('editLoadQuantity').value);
+                load.loadRate = parseInt(document.getElementById('editLoadRate').value) || 0;
+                load.operationHours = document.getElementById('editLoadOperationHours').value;
                 load.status = 'complete';
                 
                 // 노드 업데이트
                 const node = document.getElementById(nodeId);
                 node.querySelector('.node-title').textContent = `⚙️ ${load.title}`;
-                node.querySelector('.node-info').textContent = `${load.capacity}kW×${load.quantity}`;
+                node.querySelector('.node-info').textContent = `부하율: ${load.loadRate}%`;
                 node.querySelector('.node-status').textContent = '✓';
                 node.querySelector('.node-status').className = 'node-status';
             }
@@ -2392,7 +2364,7 @@
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
-            input.capture = 'camera';
+            input.capture = 'environment';
             input.style.display = 'none';
 
             input.onchange = (e) => {
@@ -2631,7 +2603,7 @@
             if (systemData.companyInfo && systemData.companyInfo.name) {
                 const headerH1 = document.querySelector('.header h1');
                 if (headerH1) {
-                    headerH1.textContent = `⚡ 원세이버스 리액터 설치 통합 조사 시스템 - ${systemData.companyInfo.name}`;
+                    headerH1.textContent = `현장조사 결과 - [${systemData.companyInfo.name}]`;
                 }
             }
         }
