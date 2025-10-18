@@ -948,6 +948,52 @@
                 background: rgba(102, 126, 234, 0.3);
                 border-radius: 2px;
             }
+
+            /* 평면도 모달 모바일 최적화 */
+            #floorPlanModal .modal-content {
+                max-width: 95%;
+                max-height: 95vh;
+                padding: 15px;
+            }
+
+            #floorPlanModal .modal-body {
+                flex-direction: column;
+                gap: 15px;
+            }
+
+            #floorPlanModal .modal-body > div:first-child {
+                flex: none;
+                width: 100%;
+                max-height: 40vh;
+                overflow-y: auto;
+                border: 1px solid #ddd;
+                border-radius: 8px;
+                padding: 15px;
+                background: #f9f9f9;
+            }
+
+            #floorPlanModal .modal-body > div:last-child {
+                flex: 1;
+                min-height: 50vh;
+            }
+
+            #floorPlanModal canvas {
+                width: 100% !important;
+                height: 50vh !important;
+                touch-action: none;
+            }
+
+            #floorPlanModal .modal-footer {
+                flex-wrap: wrap;
+                gap: 8px;
+            }
+
+            #floorPlanModal .modal-footer button {
+                flex: 1;
+                min-width: calc(50% - 4px);
+                padding: 12px 8px;
+                font-size: 14px;
+            }
         }
     </style>
 </head>
@@ -962,6 +1008,7 @@
                 </div>
                 <div class="header-actions">
                     <button class="header-btn" onclick="openCompanyInfo()">📋 기본정보</button>
+                    <button class="header-btn" onclick="openFloorPlan()">📐 평면도</button>
                     <button class="header-btn" onclick="importData()">📂 JSON 불러오기</button>
                     <button class="header-btn" onclick="exportData()">📤 JSON 내보내기</button>
                     <button class="header-btn" onclick="generatePhotoIndex()">📷 사진 대조표</button>
@@ -976,6 +1023,7 @@
                     </button>
                     <div class="mobile-menu-dropdown" id="mobileMenuDropdown">
                         <button class="mobile-menu-btn" onclick="openCompanyInfo(); closeMobileMenu()">📋 기본정보</button>
+                        <button class="mobile-menu-btn" onclick="openFloorPlan(); closeMobileMenu()">📐 평면도</button>
                         <button class="mobile-menu-btn" onclick="importData(); closeMobileMenu()">📂 JSON 불러오기</button>
                         <button class="mobile-menu-btn" onclick="exportData(); closeMobileMenu()">📤 JSON 내보내기</button>
                         <button class="mobile-menu-btn" onclick="generatePhotoIndex(); closeMobileMenu()">📷 사진 대조표</button>
@@ -1108,6 +1156,89 @@
                 </div>
             </div>
         </div>
+
+        <!-- 평면도 모달 -->
+        <div class="modal" id="floorPlanModal">
+            <div class="modal-content" style="max-width: 1200px; max-height: 90vh;">
+                <div class="modal-header">
+                    <h3>📐 설치 위치 평면도</h3>
+                    <span class="close" onclick="closeFloorPlan()">&times;</span>
+                </div>
+                <div class="modal-body" style="display: flex; gap: 20px;">
+                    <!-- 좌측: 입력 패널 -->
+                    <div style="flex: 0 0 300px; overflow-y: auto;">
+                        <div style="margin-bottom: 20px;">
+                            <h4>🏢 공간 정보</h4>
+                            <label>가로 길이 (mm)</label>
+                            <input type="number" id="roomWidth" placeholder="8000" value="8000" onchange="updateFloorPlan()">
+
+                            <label>세로 길이 (mm)</label>
+                            <input type="number" id="roomLength" placeholder="6000" value="6000" onchange="updateFloorPlan()">
+
+                            <label>높이 (mm)</label>
+                            <input type="number" id="roomHeight" placeholder="3000" value="3000" onchange="updateFloorPlan()">
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <h4>🚪 출입구</h4>
+                            <button class="btn btn-secondary" onclick="addDoor()">출입구 추가</button>
+                            <div id="doorsList"></div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <h4>⚡ 기존 설비</h4>
+                            <button class="btn btn-secondary" onclick="addExistingEquipment()">기존설비 추가</button>
+                            <div id="existingEquipmentList"></div>
+                        </div>
+
+                        <div style="margin-bottom: 20px;">
+                            <h4>🔧 설치 제품</h4>
+                            <label>제품 선택</label>
+                            <select id="reactorProductSelect">
+                                <option value="">제품을 선택하세요</option>
+                                <option value="SVC-100">SVC 리액터 100MVAR</option>
+                                <option value="SVC-50">SVC 리액터 50MVAR</option>
+                                <option value="TCR-200">TCR 리액터 200MVAR</option>
+                                <option value="FCL-300">고장전류제한기 300MVA</option>
+                                <option value="1000kVA">1000kVA</option>
+                            </select>
+                            <button class="btn btn-secondary" onclick="addReactorProduct()">제품 추가</button>
+                            <div id="reactorProductsList"></div>
+                        </div>
+                    </div>
+
+                    <!-- 우측: 평면도 캔버스 -->
+                    <div style="flex: 1; border: 1px solid #ddd; position: relative;">
+                        <canvas id="floorPlanCanvas" width="800" height="600" style="width: 100%; height: 600px; cursor: crosshair;"></canvas>
+                        <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 3px; font-size: 12px;">
+                            <div>축척: <span id="scaleDisplay">1:100</span></div>
+                            <div>격자: <span id="gridDisplay">100mm</span></div>
+                        </div>
+
+                        <div style="position: absolute; bottom: 10px; right: 10px; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 3px; font-size: 11px; max-width: 200px;">
+                            <div><strong>사용법:</strong></div>
+                            <div>• 클릭 & 드래그: 객체 이동</div>
+                            <div>• Shift + 드래그: 자유 이동</div>
+                            <div>• 일반 드래그: 100mm 스냅</div>
+                            <div style="margin-top: 3px;">
+                                <span style="color: #4CAF50;">■</span> 리액터
+                                <span style="color: #FF9800;">■</span> 기존설비
+                                <span style="color: #4CAF50;">━</span> 출입구
+                            </div>
+                            <div style="margin-top: 3px; font-size: 9px; color: #666;">
+                                격자: 100mm(옅음) / 500mm / 1m(진함)
+                            </div>
+                        </div>
+                    </div>
+                </div>
+                <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="resetFloorPlan()">초기화</button>
+                    <button class="btn btn-secondary" onclick="exportFloorPlan()">PDF 출력</button>
+                    <button class="btn btn-secondary" onclick="closeFloorPlan()">취소</button>
+                    <button class="btn btn-primary" onclick="saveFloorPlan()">저장</button>
+                </div>
+            </div>
+        </div>
     </div>
 
     <script>
@@ -1136,6 +1267,73 @@
             connections: {
                 transformerToPanels: {},
                 panelToLoads: {}
+            },
+            floorPlan: {
+                enabled: false,
+                roomDimensions: {
+                    width: 0,   // 가로 (mm)
+                    length: 0,  // 세로 (mm)
+                    height: 0   // 높이 (mm)
+                },
+                doors: [], // {x: number, y: number, width: number, orientation: 'horizontal'|'vertical'}
+                existingEquipment: [], // {id: string, x: number, y: number, width: number, length: number, name: string}
+                reactorProducts: [], // {id: string, x: number, y: number, productId: string, rotation: number}
+                scale: 1, // mm per pixel
+                gridSize: 100, // mm (100mm 간격)
+                safetyMargins: {
+                    front: 800,    // 전면 여유공간 (mm)
+                    back: 600,     // 후면 여유공간 (mm)
+                    side: 400      // 측면 여유공간 (mm)
+                }
+            }
+        };
+
+        // 리액터 제품 치수 데이터베이스
+        const reactorProductDB = {
+            'SVC-100': {
+                name: 'SVC 리액터 100MVAR',
+                capacity: 100,
+                dimensions: { width: 2000, length: 3000, height: 2500 }, // mm
+                weight: 15000, // kg
+                coolingType: '자연냉각',
+                installationType: '옥내형',
+                safetyMargins: { front: 1000, back: 800, side: 600 }
+            },
+            'SVC-50': {
+                name: 'SVC 리액터 50MVAR',
+                capacity: 50,
+                dimensions: { width: 1500, length: 2500, height: 2000 },
+                weight: 8000,
+                coolingType: '자연냉각',
+                installationType: '옥내형',
+                safetyMargins: { front: 800, back: 600, side: 400 }
+            },
+            'TCR-200': {
+                name: 'TCR 리액터 200MVAR',
+                capacity: 200,
+                dimensions: { width: 2500, length: 4000, height: 3000 },
+                weight: 25000,
+                coolingType: '강제냉각',
+                installationType: '옥외형',
+                safetyMargins: { front: 1200, back: 1000, side: 800 }
+            },
+            'FCL-300': {
+                name: '고장전류제한기 300MVA',
+                capacity: 300,
+                dimensions: { width: 1800, length: 3500, height: 2800 },
+                weight: 20000,
+                coolingType: '유냉각',
+                installationType: '옥내형',
+                safetyMargins: { front: 1000, back: 800, side: 600 }
+            },
+            '1000kVA': {
+                name: '1000kVA',
+                capacity: 1000,
+                dimensions: { width: 1500, length: 1500, height: 2000 },
+                weight: 12000,
+                coolingType: '자연냉각',
+                installationType: '옥내형',
+                safetyMargins: { front: 800, back: 600, side: 500 }
             }
         };
 
@@ -2799,11 +2997,1104 @@
                 closeDetail();
                 if (typeof closeModal === 'function') closeModal();
                 if (typeof cancelDelete === 'function') cancelDelete();
+                if (typeof closeFloorPlan === 'function') closeFloorPlan();
             } else if (e.ctrlKey && e.key === 's') {
                 e.preventDefault();
                 if (typeof saveData === 'function') saveData();
             }
         });
+
+        // ========== 평면도 관련 함수들 ==========
+
+        let floorPlanCanvas = null;
+        let floorPlanCtx = null;
+        let selectedFloorPlanItem = null;
+        let isDragging = false;
+        let dragOffset = { x: 0, y: 0 };
+
+        // 평면도 모달 열기
+        function openFloorPlan() {
+            document.getElementById('floorPlanModal').classList.add('show');
+            setTimeout(() => {
+                initFloorPlanCanvas();
+                loadFloorPlanData();
+                updateFloorPlan();
+            }, 100);
+        }
+
+        // 평면도 모달 닫기
+        function closeFloorPlan() {
+            document.getElementById('floorPlanModal').classList.remove('show');
+        }
+
+        // Canvas 초기화
+        function initFloorPlanCanvas() {
+            floorPlanCanvas = document.getElementById('floorPlanCanvas');
+            floorPlanCtx = floorPlanCanvas.getContext('2d');
+
+            // 고해상도 디스플레이 지원
+            const rect = floorPlanCanvas.getBoundingClientRect();
+            const dpr = window.devicePixelRatio || 1;
+            floorPlanCanvas.width = rect.width * dpr;
+            floorPlanCanvas.height = rect.height * dpr;
+            floorPlanCtx.scale(dpr, dpr);
+
+            // 마우스 이벤트 추가
+            floorPlanCanvas.addEventListener('mousedown', onFloorPlanMouseDown);
+            floorPlanCanvas.addEventListener('mousemove', onFloorPlanMouseMove);
+            floorPlanCanvas.addEventListener('mouseup', onFloorPlanMouseUp);
+            floorPlanCanvas.addEventListener('wheel', onFloorPlanWheel);
+
+            // 터치 이벤트 추가 (모바일 지원)
+            floorPlanCanvas.addEventListener('touchstart', onFloorPlanTouchStart);
+            floorPlanCanvas.addEventListener('touchmove', onFloorPlanTouchMove);
+            floorPlanCanvas.addEventListener('touchend', onFloorPlanTouchEnd);
+
+            // 터치 시 스크롤 방지
+            floorPlanCanvas.addEventListener('touchstart', (e) => e.preventDefault());
+            floorPlanCanvas.addEventListener('touchmove', (e) => e.preventDefault());
+        }
+
+        // 평면도 데이터 로드
+        function loadFloorPlanData() {
+            const fp = systemData.floorPlan;
+            if (fp.enabled) {
+                document.getElementById('roomWidth').value = fp.roomDimensions.width || '';
+                document.getElementById('roomLength').value = fp.roomDimensions.length || '';
+                document.getElementById('roomHeight').value = fp.roomDimensions.height || '';
+
+                updateDoorsList();
+                updateExistingEquipmentList();
+                updateReactorProductsList();
+            }
+        }
+
+        // 평면도 업데이트 및 그리기
+        function updateFloorPlan() {
+            if (!floorPlanCtx) return;
+
+            const canvas = floorPlanCanvas;
+            const ctx = floorPlanCtx;
+
+            // 캔버스 클리어
+            ctx.clearRect(0, 0, canvas.width, canvas.height);
+
+            // 데이터 업데이트
+            const width = parseInt(document.getElementById('roomWidth').value) || 8000;
+            const length = parseInt(document.getElementById('roomLength').value) || 6000;
+            const height = parseInt(document.getElementById('roomHeight').value) || 3000;
+
+            systemData.floorPlan.roomDimensions = { width, length, height };
+
+            // 축척 계산 (캔버스 크기에 맞춤)
+            const canvasWidth = canvas.getBoundingClientRect().width - 40;
+            const canvasHeight = canvas.getBoundingClientRect().height - 40;
+            const scaleX = canvasWidth / width;
+            const scaleY = canvasHeight / length;
+            systemData.floorPlan.scale = Math.min(scaleX, scaleY);
+
+            const scale = systemData.floorPlan.scale;
+            const offsetX = 20;
+            const offsetY = 20;
+
+            // 방이 정의된 경우
+            if (width > 0 && length > 0) {
+                // 1. 방 외곽선 및 배경 그리기 (가장 먼저)
+                drawRoom(ctx, width, length, scale, offsetX, offsetY);
+
+                // 2. 격자 그리기 (방 위에 표시)
+                drawGrid(ctx, width, length, scale, offsetX, offsetY);
+
+                // 3. 출입구 그리기
+                systemData.floorPlan.doors.forEach(door => {
+                    drawDoor(ctx, door, scale, offsetX, offsetY);
+                });
+
+                // 4. 기존 설비 그리기
+                systemData.floorPlan.existingEquipment.forEach(equipment => {
+                    drawExistingEquipment(ctx, equipment, scale, offsetX, offsetY);
+                });
+
+                // 5. 리액터 제품 그리기 (가장 위에)
+                systemData.floorPlan.reactorProducts.forEach(product => {
+                    drawReactorProduct(ctx, product, scale, offsetX, offsetY);
+                });
+            } else {
+                // 방이 정의되지 않은 경우 기본 격자만 표시
+                drawBaseGrid(ctx, canvasWidth, canvasHeight, offsetX, offsetY);
+            }
+
+            // 축척 정보 업데이트
+            updateScaleDisplay(scale);
+        }
+
+        // 기본 격자 그리기 (캔버스 전체에 표시)
+        function drawBaseGrid(ctx, canvasWidth, canvasHeight, offsetX, offsetY) {
+            const smallSpacing = 10; // 작은 격자 (10픽셀)
+            const mediumSpacing = 50; // 중간 격자 (50픽셀)
+            const largeSpacing = 100; // 큰 격자 (100픽셀)
+
+            // 1단계: 미세격자 (10픽셀 간격) - 매우 옅게
+            ctx.strokeStyle = 'rgba(240, 240, 240, 0.3)';
+            ctx.lineWidth = 0.25;
+            ctx.setLineDash([]);
+
+            // 세로선
+            for (let x = offsetX; x <= canvasWidth + offsetX; x += smallSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(x, offsetY);
+                ctx.lineTo(x, canvasHeight + offsetY);
+                ctx.stroke();
+            }
+
+            // 가로선
+            for (let y = offsetY; y <= canvasHeight + offsetY; y += smallSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(offsetX, y);
+                ctx.lineTo(canvasWidth + offsetX, y);
+                ctx.stroke();
+            }
+
+            // 2단계: 중간격자 (50픽셀 간격)
+            ctx.strokeStyle = 'rgba(220, 220, 220, 0.5)';
+            ctx.lineWidth = 0.5;
+
+            // 세로선
+            for (let x = offsetX; x <= canvasWidth + offsetX; x += mediumSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(x, offsetY);
+                ctx.lineTo(x, canvasHeight + offsetY);
+                ctx.stroke();
+            }
+
+            // 가로선
+            for (let y = offsetY; y <= canvasHeight + offsetY; y += mediumSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(offsetX, y);
+                ctx.lineTo(canvasWidth + offsetX, y);
+                ctx.stroke();
+            }
+
+            // 3단계: 주격자 (100픽셀 간격)
+            ctx.strokeStyle = 'rgba(180, 180, 180, 0.7)';
+            ctx.lineWidth = 0.8;
+
+            // 세로선
+            for (let x = offsetX; x <= canvasWidth + offsetX; x += largeSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(x, offsetY);
+                ctx.lineTo(x, canvasHeight + offsetY);
+                ctx.stroke();
+            }
+
+            // 가로선
+            for (let y = offsetY; y <= canvasHeight + offsetY; y += largeSpacing) {
+                ctx.beginPath();
+                ctx.moveTo(offsetX, y);
+                ctx.lineTo(canvasWidth + offsetX, y);
+                ctx.stroke();
+            }
+
+            // 격자점 표시 (중간격자 교차점에만)
+            ctx.fillStyle = 'rgba(200, 200, 200, 0.6)';
+            for (let x = offsetX; x <= canvasWidth + offsetX; x += mediumSpacing) {
+                for (let y = offsetY; y <= canvasHeight + offsetY; y += mediumSpacing) {
+                    // 주격자 교차점은 더 큰 점
+                    if ((x - offsetX) % largeSpacing === 0 && (y - offsetY) % largeSpacing === 0) {
+                        ctx.fillStyle = 'rgba(150, 150, 150, 0.8)';
+                        ctx.fillRect(x - 1, y - 1, 2, 2);
+                    } else {
+                        ctx.fillStyle = 'rgba(200, 200, 200, 0.6)';
+                        ctx.fillRect(x - 0.5, y - 0.5, 1, 1);
+                    }
+                }
+            }
+
+            ctx.setLineDash([]);
+        }
+
+        // 격자 그리기 (100mm 기반)
+        function drawGrid(ctx, roomWidth, roomLength, scale, offsetX, offsetY) {
+            const gridSize = systemData.floorPlan.gridSize; // 100mm
+
+            // 1단계: 기본 격자 (100mm 간격)
+            ctx.strokeStyle = 'rgba(180, 180, 180, 0.5)';
+            ctx.lineWidth = 0.5;
+            ctx.setLineDash([]);
+
+            // 100mm 격자
+            const minPixelSpacing = 5; // 최소 픽셀 간격
+            const actualSpacing = gridSize * scale;
+
+            if (actualSpacing >= minPixelSpacing) {
+                // 세로선
+                for (let x = 0; x <= roomWidth; x += gridSize) {
+                    const canvasX = offsetX + x * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(canvasX, offsetY);
+                    ctx.lineTo(canvasX, offsetY + roomLength * scale);
+                    ctx.stroke();
+                }
+
+                // 가로선
+                for (let y = 0; y <= roomLength; y += gridSize) {
+                    const canvasY = offsetY + y * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(offsetX, canvasY);
+                    ctx.lineTo(offsetX + roomWidth * scale, canvasY);
+                    ctx.stroke();
+                }
+            }
+
+            // 2단계: 500mm 격자 (중간 격자)
+            const midGridSize = gridSize * 5; // 500mm
+            ctx.strokeStyle = 'rgba(120, 120, 120, 0.7)';
+            ctx.lineWidth = 0.8;
+
+            // 500mm 격자 세로선
+            for (let x = 0; x <= roomWidth; x += midGridSize) {
+                const canvasX = offsetX + x * scale;
+                ctx.beginPath();
+                ctx.moveTo(canvasX, offsetY);
+                ctx.lineTo(canvasX, offsetY + roomLength * scale);
+                ctx.stroke();
+            }
+
+            // 500mm 격자 가로선
+            for (let y = 0; y <= roomLength; y += midGridSize) {
+                const canvasY = offsetY + y * scale;
+                ctx.beginPath();
+                ctx.moveTo(offsetX, canvasY);
+                ctx.lineTo(offsetX + roomWidth * scale, canvasY);
+                ctx.stroke();
+            }
+
+            // 3단계: 주격자 (1000mm = 1m 간격)
+            const majorGridSize = gridSize * 10; // 1000mm
+            ctx.strokeStyle = 'rgba(80, 80, 80, 0.9)';
+            ctx.lineWidth = 1.2;
+
+            // 1m 격자 세로선
+            for (let x = 0; x <= roomWidth; x += majorGridSize) {
+                const canvasX = offsetX + x * scale;
+                ctx.beginPath();
+                ctx.moveTo(canvasX, offsetY);
+                ctx.lineTo(canvasX, offsetY + roomLength * scale);
+                ctx.stroke();
+            }
+
+            // 1m 격자 가로선
+            for (let y = 0; y <= roomLength; y += majorGridSize) {
+                const canvasY = offsetY + y * scale;
+                ctx.beginPath();
+                ctx.moveTo(offsetX, canvasY);
+                ctx.lineTo(offsetX + roomWidth * scale, canvasY);
+                ctx.stroke();
+            }
+
+            // 격자점 표시 (100mm 교차점에만)
+            ctx.fillStyle = 'rgba(100, 100, 100, 0.6)';
+
+            for (let x = 0; x <= roomWidth; x += gridSize) {
+                for (let y = 0; y <= roomLength; y += gridSize) {
+                    const canvasX = offsetX + x * scale;
+                    const canvasY = offsetY + y * scale;
+
+                    // 1m 교차점은 더 큰 점
+                    if (x % majorGridSize === 0 && y % majorGridSize === 0) {
+                        ctx.fillStyle = 'rgba(60, 60, 60, 0.9)';
+                        ctx.fillRect(canvasX - 1.5, canvasY - 1.5, 3, 3);
+                    } else if (x % midGridSize === 0 && y % midGridSize === 0) {
+                        // 500mm 교차점은 중간 크기 점
+                        ctx.fillStyle = 'rgba(80, 80, 80, 0.7)';
+                        ctx.fillRect(canvasX - 1, canvasY - 1, 2, 2);
+                    } else {
+                        // 100mm 교차점은 작은 점
+                        ctx.fillStyle = 'rgba(100, 100, 100, 0.6)';
+                        ctx.fillRect(canvasX - 0.5, canvasY - 0.5, 1, 1);
+                    }
+                }
+            }
+
+            ctx.setLineDash([]);
+        }
+
+        // 방 외곽선 그리기
+        function drawRoom(ctx, width, length, scale, offsetX, offsetY) {
+            ctx.strokeStyle = '#333';
+            ctx.lineWidth = 3;
+            ctx.fillStyle = '#f9f9f9';
+
+            const rect = {
+                x: offsetX,
+                y: offsetY,
+                width: width * scale,
+                height: length * scale
+            };
+
+            ctx.fillRect(rect.x, rect.y, rect.width, rect.height);
+            ctx.strokeRect(rect.x, rect.y, rect.width, rect.height);
+
+            // 치수 표기
+            ctx.fillStyle = '#666';
+            ctx.font = '12px Arial';
+            ctx.textAlign = 'center';
+
+            // 가로 치수
+            ctx.fillText(`${width}mm`, offsetX + width * scale / 2, offsetY - 5);
+
+            // 세로 치수
+            ctx.save();
+            ctx.translate(offsetX - 15, offsetY + length * scale / 2);
+            ctx.rotate(-Math.PI / 2);
+            ctx.fillText(`${length}mm`, 0, 0);
+            ctx.restore();
+        }
+
+        // 출입구 그리기
+        function drawDoor(ctx, door, scale, offsetX, offsetY) {
+            const isSelected = selectedFloorPlanItem && selectedFloorPlanItem.type === 'door' && selectedFloorPlanItem.item === door;
+
+            const x = offsetX + door.x * scale;
+            const y = offsetY + door.y * scale;
+            const width = door.width * scale;
+            const thickness = 12; // 12픽셀 두께로 고정
+
+            // 출입구 배경 (더 두꺼운 영역)
+            ctx.fillStyle = isSelected ? '#81C784' : '#4CAF50';
+            ctx.beginPath();
+
+            if (door.orientation === 'horizontal') {
+                // 가로형: 두꺼운 수평선
+                ctx.rect(x, y - thickness/2, width, thickness);
+            } else {
+                // 세로형: 두꺼운 수직선
+                ctx.rect(x - thickness/2, y, thickness, width);
+            }
+            ctx.fill();
+
+            // 출입구 테두리
+            ctx.strokeStyle = isSelected ? '#66BB6A' : '#388E3C';
+            ctx.lineWidth = 2;
+            ctx.stroke();
+
+            // 핸들러 (가운데 원형)
+            const centerX = door.orientation === 'horizontal' ? x + width/2 : x;
+            const centerY = door.orientation === 'horizontal' ? y : y + width/2;
+
+            ctx.fillStyle = isSelected ? '#FFF' : '#2E7D32';
+            ctx.beginPath();
+            ctx.arc(centerX, centerY, 6, 0, 2 * Math.PI);
+            ctx.fill();
+
+            ctx.strokeStyle = isSelected ? '#2E7D32' : '#FFF';
+            ctx.lineWidth = 1;
+            ctx.stroke();
+
+            // 라벨
+            ctx.fillStyle = '#2E7D32';
+            ctx.font = 'bold 12px Arial';
+            const labelX = door.orientation === 'horizontal' ? x + width/2 : x + 15;
+            const labelY = door.orientation === 'horizontal' ? y - 8 : y + width/2 + 4;
+            ctx.textAlign = 'center';
+            ctx.fillText('문', labelX, labelY);
+            ctx.textAlign = 'left'; // 기본값으로 복원
+        }
+
+        // 기존 설비 그리기
+        function drawExistingEquipment(ctx, equipment, scale, offsetX, offsetY) {
+            const isSelected = selectedFloorPlanItem && selectedFloorPlanItem.type === 'equipment' && selectedFloorPlanItem.item === equipment;
+
+            ctx.fillStyle = isSelected ? '#FF5722' : '#FF9800';
+            ctx.strokeStyle = isSelected ? '#D84315' : '#F57C00';
+            ctx.lineWidth = isSelected ? 3 : 2;
+
+            const x = offsetX + equipment.x * scale;
+            const y = offsetY + equipment.y * scale;
+            const width = equipment.width * scale;
+            const height = equipment.length * scale;
+
+            ctx.fillRect(x, y, width, height);
+            ctx.strokeRect(x, y, width, height);
+
+            // 라벨
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(equipment.name, x + width/2, y + height/2 + 3);
+
+            // 선택된 기존설비의 영향 범위 표시
+            if (isSelected) {
+                ctx.strokeStyle = '#FF5722';
+                ctx.lineWidth = 1;
+                ctx.setLineDash([5, 5]);
+
+                // 접근 영역 표시 (600mm 여유공간)
+                const margin = 600 * scale;
+                ctx.strokeRect(x - margin, y - margin, width + margin * 2, height + margin * 2);
+                ctx.setLineDash([]);
+            }
+        }
+
+        // 리액터 제품 그리기
+        function drawReactorProduct(ctx, product, scale, offsetX, offsetY) {
+            const productData = reactorProductDB[product.productId];
+            if (!productData) return;
+
+            ctx.fillStyle = selectedFloorPlanItem === product ? '#2196F3' : '#4CAF50';
+            ctx.strokeStyle = '#1976D2';
+            ctx.lineWidth = 2;
+
+            const x = offsetX + product.x * scale;
+            const y = offsetY + product.y * scale;
+            const width = productData.dimensions.width * scale;
+            const height = productData.dimensions.length * scale;
+
+            // 회전 적용
+            ctx.save();
+            ctx.translate(x + width/2, y + height/2);
+            ctx.rotate(product.rotation * Math.PI / 180);
+
+            ctx.fillRect(-width/2, -height/2, width, height);
+            ctx.strokeRect(-width/2, -height/2, width, height);
+
+            // 라벨
+            ctx.fillStyle = '#fff';
+            ctx.font = '10px Arial';
+            ctx.textAlign = 'center';
+            ctx.fillText(productData.name.substring(0, 10), 0, 3);
+
+            ctx.restore();
+
+            // 안전 여유공간 표시
+            if (selectedFloorPlanItem === product) {
+                drawSafetyMargins(ctx, product, productData, scale, offsetX, offsetY);
+            }
+        }
+
+        // 안전 여유공간 그리기
+        function drawSafetyMargins(ctx, product, productData, scale, offsetX, offsetY) {
+            ctx.strokeStyle = '#FF5722';
+            ctx.lineWidth = 1;
+            ctx.setLineDash([3, 3]);
+
+            const margins = productData.safetyMargins;
+            const x = offsetX + (product.x - margins.side) * scale;
+            const y = offsetY + (product.y - margins.front) * scale;
+            const width = (productData.dimensions.width + margins.side * 2) * scale;
+            const height = (productData.dimensions.length + margins.front + margins.back) * scale;
+
+            ctx.strokeRect(x, y, width, height);
+            ctx.setLineDash([]);
+        }
+
+        // 축척 정보 업데이트
+        function updateScaleDisplay(scale) {
+            const scaleRatio = Math.round(1 / scale);
+            document.getElementById('scaleDisplay').textContent = `1:${scaleRatio}`;
+            document.getElementById('gridDisplay').textContent = `${systemData.floorPlan.gridSize}mm`;
+        }
+
+        // 마우스 이벤트 핸들러
+        function onFloorPlanMouseDown(e) {
+            const rect = floorPlanCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 클릭된 객체 찾기
+            const clickResult = findFloorPlanItemAt(x, y);
+            if (clickResult) {
+                selectedFloorPlanItem = clickResult;
+                isDragging = true;
+                dragOffset.x = x - (20 + clickResult.item.x * systemData.floorPlan.scale);
+                dragOffset.y = y - (20 + clickResult.item.y * systemData.floorPlan.scale);
+
+                // 커서 변경
+                floorPlanCanvas.style.cursor = 'grabbing';
+            } else {
+                selectedFloorPlanItem = null;
+                floorPlanCanvas.style.cursor = 'crosshair';
+            }
+
+            updateFloorPlan();
+            updateCoordinateDisplay(e);
+        }
+
+        function onFloorPlanMouseMove(e) {
+            if (!isDragging || !selectedFloorPlanItem) {
+                // 드래그 중이 아닐 때는 호버 효과
+                const clickResult = findFloorPlanItemAt(e.clientX - floorPlanCanvas.getBoundingClientRect().left,
+                                                       e.clientY - floorPlanCanvas.getBoundingClientRect().top);
+                floorPlanCanvas.style.cursor = clickResult ? 'grab' : 'crosshair';
+                updateCoordinateDisplay(e);
+                return;
+            }
+
+            const rect = floorPlanCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 격자에 스냅된 좌표 계산
+            const rawX = (x - dragOffset.x - 20) / systemData.floorPlan.scale;
+            const rawY = (y - dragOffset.y - 20) / systemData.floorPlan.scale;
+
+            // Shift 키를 누르면 격자 스냅 비활성화
+            const enableSnap = !e.shiftKey;
+
+            if (enableSnap) {
+                selectedFloorPlanItem.item.x = snapToGrid(rawX);
+                selectedFloorPlanItem.item.y = snapToGrid(rawY);
+            } else {
+                selectedFloorPlanItem.item.x = rawX;
+                selectedFloorPlanItem.item.y = rawY;
+            }
+
+            // 경계 검사 및 제한
+            constrainToBounds(selectedFloorPlanItem);
+
+            updateFloorPlan();
+            updateCoordinateDisplay(e);
+
+            // 리스트 업데이트
+            if (selectedFloorPlanItem.type === 'reactor') {
+                updateReactorProductsList();
+            } else if (selectedFloorPlanItem.type === 'equipment') {
+                updateExistingEquipmentList();
+            } else if (selectedFloorPlanItem.type === 'door') {
+                updateDoorsList();
+            }
+        }
+
+        function onFloorPlanMouseUp(e) {
+            isDragging = false;
+            floorPlanCanvas.style.cursor = 'crosshair';
+
+            // 좌표 표시 숨기기
+            hideCoordinateDisplay();
+        }
+
+        // 터치 이벤트 핸들러들 (모바일 지원)
+        function onFloorPlanTouchStart(e) {
+            if (e.touches.length === 1) {
+                const touch = e.touches[0];
+                const rect = floorPlanCanvas.getBoundingClientRect();
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
+
+                // 클릭된 객체 찾기
+                const clickResult = findFloorPlanItemAt(x, y);
+                if (clickResult) {
+                    selectedFloorPlanItem = clickResult;
+                    isDragging = true;
+                    dragOffset.x = x - (20 + clickResult.item.x * systemData.floorPlan.scale);
+                    dragOffset.y = y - (20 + clickResult.item.y * systemData.floorPlan.scale);
+                } else {
+                    selectedFloorPlanItem = null;
+                }
+
+                updateFloorPlan();
+            }
+        }
+
+        function onFloorPlanTouchMove(e) {
+            if (!isDragging || !selectedFloorPlanItem || e.touches.length !== 1) {
+                return;
+            }
+
+            const touch = e.touches[0];
+            const rect = floorPlanCanvas.getBoundingClientRect();
+            const x = touch.clientX - rect.left;
+            const y = touch.clientY - rect.top;
+
+            // 격자에 스냅된 좌표 계산
+            const rawX = (x - dragOffset.x - 20) / systemData.floorPlan.scale;
+            const rawY = (y - dragOffset.y - 20) / systemData.floorPlan.scale;
+
+            // 터치에서는 기본적으로 격자 스냅 활성화
+            selectedFloorPlanItem.item.x = snapToGrid(rawX);
+            selectedFloorPlanItem.item.y = snapToGrid(rawY);
+
+            // 경계 검사 및 제한
+            constrainToBounds(selectedFloorPlanItem);
+
+            updateFloorPlan();
+
+            // 리스트 업데이트
+            if (selectedFloorPlanItem.type === 'reactor') {
+                updateReactorProductsList();
+            } else if (selectedFloorPlanItem.type === 'equipment') {
+                updateExistingEquipmentList();
+            } else if (selectedFloorPlanItem.type === 'door') {
+                updateDoorsList();
+            }
+        }
+
+        function onFloorPlanTouchEnd(e) {
+            isDragging = false;
+        }
+
+        // 경계 제한 함수
+        function constrainToBounds(selectedItem) {
+            const room = systemData.floorPlan.roomDimensions;
+            const item = selectedItem.item;
+
+            let width, height;
+
+            if (selectedItem.type === 'reactor') {
+                const productData = reactorProductDB[item.productId];
+                if (!productData) return;
+                width = productData.dimensions.width;
+                height = productData.dimensions.length;
+
+                // 일반 객체는 방 안쪽으로 제한
+                item.x = Math.max(0, Math.min(item.x, room.width - width));
+                item.y = Math.max(0, Math.min(item.y, room.length - height));
+
+            } else if (selectedItem.type === 'equipment') {
+                width = item.width;
+                height = item.length;
+
+                // 일반 객체는 방 안쪽으로 제한
+                item.x = Math.max(0, Math.min(item.x, room.width - width));
+                item.y = Math.max(0, Math.min(item.y, room.length - height));
+
+            } else if (selectedItem.type === 'door') {
+                // 출입구는 외곽 경계에만 배치 가능
+                constrainDoorToBounds(item, room);
+            }
+        }
+
+        // 출입구 외곽 경계 제한 함수 (방향 자동 변경 포함)
+        function constrainDoorToBounds(door, room) {
+            const doorWidth = door.width;
+
+            // 현재 위치에서 가장 가까운 벽 찾기
+            const distToTop = Math.abs(door.y - 0);
+            const distToBottom = Math.abs(door.y - room.length);
+            const distToLeft = Math.abs(door.x - 0);
+            const distToRight = Math.abs(door.x - room.width);
+
+            const minDist = Math.min(distToTop, distToBottom, distToLeft, distToRight);
+
+            // 가장 가까운 벽에 따라 방향과 위치 결정
+            if (minDist === distToTop || minDist === distToBottom) {
+                // 상단 또는 하단 벽 → 가로형으로 변경
+                door.orientation = 'horizontal';
+
+                // X 좌표 제한 (방 폭 내에서)
+                door.x = Math.max(0, Math.min(door.x, room.width - doorWidth));
+
+                // Y 좌표를 가까운 벽으로 스냅
+                if (minDist === distToTop) {
+                    door.y = 0; // 상단 벽
+                } else {
+                    door.y = room.length; // 하단 벽
+                }
+
+            } else {
+                // 좌측 또는 우측 벽 → 세로형으로 변경
+                door.orientation = 'vertical';
+
+                // Y 좌표 제한 (방 길이 내에서)
+                door.y = Math.max(0, Math.min(door.y, room.length - doorWidth));
+
+                // X 좌표를 가까운 벽으로 스냅
+                if (minDist === distToLeft) {
+                    door.x = 0; // 좌측 벽
+                } else {
+                    door.x = room.width; // 우측 벽
+                }
+            }
+        }
+
+        // 실시간 좌표 표시
+        function updateCoordinateDisplay(e) {
+            const rect = floorPlanCanvas.getBoundingClientRect();
+            const x = e.clientX - rect.left;
+            const y = e.clientY - rect.top;
+
+            // 실제 mm 좌표 계산
+            const realX = (x - 20) / systemData.floorPlan.scale;
+            const realY = (y - 20) / systemData.floorPlan.scale;
+
+            // 좌표 표시 요소 생성 또는 업데이트
+            let coordDisplay = document.getElementById('coordinateDisplay');
+            if (!coordDisplay) {
+                coordDisplay = document.createElement('div');
+                coordDisplay.id = 'coordinateDisplay';
+                coordDisplay.style.cssText = `
+                    position: absolute;
+                    background: rgba(0,0,0,0.8);
+                    color: white;
+                    padding: 5px 10px;
+                    border-radius: 3px;
+                    font-size: 12px;
+                    pointer-events: none;
+                    z-index: 1000;
+                    white-space: nowrap;
+                `;
+                document.body.appendChild(coordDisplay);
+            }
+
+            coordDisplay.style.left = (e.clientX + 10) + 'px';
+            coordDisplay.style.top = (e.clientY - 30) + 'px';
+            coordDisplay.textContent = `X: ${Math.round(realX)}mm, Y: ${Math.round(realY)}mm`;
+            coordDisplay.style.display = 'block';
+        }
+
+        function hideCoordinateDisplay() {
+            const coordDisplay = document.getElementById('coordinateDisplay');
+            if (coordDisplay) {
+                coordDisplay.style.display = 'none';
+            }
+        }
+
+        function onFloorPlanWheel(e) {
+            e.preventDefault();
+            // 줌 기능 (향후 구현)
+        }
+
+        // 격자에 스냅하는 함수 (100mm 단위)
+        function snapToGrid(value) {
+            const gridSize = systemData.floorPlan.gridSize; // 100mm
+            return Math.round(value / gridSize) * gridSize;
+        }
+
+        // 클릭 위치의 객체 찾기
+        function findFloorPlanItemAt(canvasX, canvasY) {
+            const scale = systemData.floorPlan.scale;
+            const offsetX = 20;
+            const offsetY = 20;
+
+            // 리액터 제품 검사
+            for (let product of systemData.floorPlan.reactorProducts) {
+                const productData = reactorProductDB[product.productId];
+                if (!productData) continue;
+
+                const x = offsetX + product.x * scale;
+                const y = offsetY + product.y * scale;
+                const width = productData.dimensions.width * scale;
+                const height = productData.dimensions.length * scale;
+
+                if (canvasX >= x && canvasX <= x + width && canvasY >= y && canvasY <= y + height) {
+                    return { type: 'reactor', item: product };
+                }
+            }
+
+            // 기존 설비 검사
+            for (let equipment of systemData.floorPlan.existingEquipment) {
+                const x = offsetX + equipment.x * scale;
+                const y = offsetY + equipment.y * scale;
+                const width = equipment.width * scale;
+                const height = equipment.length * scale;
+
+                if (canvasX >= x && canvasX <= x + width && canvasY >= y && canvasY <= y + height) {
+                    return { type: 'equipment', item: equipment };
+                }
+            }
+
+            // 출입구 검사 (더 넓은 감지 영역)
+            for (let door of systemData.floorPlan.doors) {
+                const x = offsetX + door.x * scale;
+                const y = offsetY + door.y * scale;
+                let width, height;
+                const thickness = 12; // 12픽셀 두께와 동일
+
+                if (door.orientation === 'horizontal') {
+                    width = door.width * scale;
+                    height = thickness;
+                    // 감지 영역 중앙 정렬
+                    const detectionY = y - thickness/2;
+                    if (canvasX >= x && canvasX <= x + width && canvasY >= detectionY && canvasY <= detectionY + height) {
+                        return { type: 'door', item: door };
+                    }
+                } else {
+                    width = thickness;
+                    height = door.width * scale;
+                    // 감지 영역 중앙 정렬
+                    const detectionX = x - thickness/2;
+                    if (canvasX >= detectionX && canvasX <= detectionX + width && canvasY >= y && canvasY <= y + height) {
+                        return { type: 'door', item: door };
+                    }
+                }
+            }
+
+            return null;
+        }
+
+        // 출입구 추가
+        function addDoor() {
+            const door = {
+                x: 0,
+                y: 0,
+                width: 900,
+                orientation: 'horizontal'
+            };
+
+            systemData.floorPlan.doors.push(door);
+            updateDoorsList();
+            updateFloorPlan();
+        }
+
+        // 출입구 목록 업데이트
+        function updateDoorsList() {
+            const container = document.getElementById('doorsList');
+            container.innerHTML = '';
+
+            systemData.floorPlan.doors.forEach((door, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'margin: 5px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;';
+                div.innerHTML = `
+                    <div style="margin-bottom: 8px; font-weight: bold;">출입구 ${index + 1}</div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 X(mm):</label>
+                            <input type="number" placeholder="X좌표" value="${door.x}"
+                                   onchange="systemData.floorPlan.doors[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 Y(mm):</label>
+                            <input type="number" placeholder="Y좌표" value="${door.y}"
+                                   onchange="systemData.floorPlan.doors[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">문 폭(mm):</label>
+                        <input type="number" placeholder="문폭" value="${door.width}"
+                               onchange="systemData.floorPlan.doors[${index}].width = parseInt(this.value) || 900; updateFloorPlan()" style="width: 100%;">
+                    </div>
+                    <div style="margin-bottom: 8px; padding: 5px; background: #e8f5e8; border-radius: 3px; font-size: 12px; color: #2e7d32;">
+                        현재 방향: <strong>${door.orientation === 'horizontal' ? '가로형' : '세로형'}</strong> (자동 설정)
+                    </div>
+                    <button onclick="removeDoor(${index})" style="background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 3px;">삭제</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 출입구 삭제
+        function removeDoor(index) {
+            systemData.floorPlan.doors.splice(index, 1);
+            updateDoorsList();
+            updateFloorPlan();
+        }
+
+        // 기존 설비 추가
+        function addExistingEquipment() {
+            const equipment = {
+                id: 'eq' + Date.now(),
+                x: 1000,
+                y: 1000,
+                width: 800,
+                length: 600,
+                name: '기존설비'
+            };
+
+            systemData.floorPlan.existingEquipment.push(equipment);
+            updateExistingEquipmentList();
+            updateFloorPlan();
+        }
+
+        // 기존 설비 목록 업데이트
+        function updateExistingEquipmentList() {
+            const container = document.getElementById('existingEquipmentList');
+            container.innerHTML = '';
+
+            systemData.floorPlan.existingEquipment.forEach((equipment, index) => {
+                const div = document.createElement('div');
+                div.style.cssText = 'margin: 5px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;';
+                div.innerHTML = `
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">설비명:</label>
+                        <input type="text" placeholder="설비명" value="${equipment.name}"
+                               onchange="systemData.floorPlan.existingEquipment[${index}].name = this.value; updateFloorPlan()" style="width: 100%;">
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 X(mm):</label>
+                            <input type="number" placeholder="X좌표" value="${equipment.x}"
+                                   onchange="systemData.floorPlan.existingEquipment[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 Y(mm):</label>
+                            <input type="number" placeholder="Y좌표" value="${equipment.y}"
+                                   onchange="systemData.floorPlan.existingEquipment[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                        </div>
+                    </div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">폭(mm):</label>
+                            <input type="number" placeholder="폭" value="${equipment.width}"
+                                   onchange="systemData.floorPlan.existingEquipment[${index}].width = parseInt(this.value) || 800; updateFloorPlan()" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">깊이(mm):</label>
+                            <input type="number" placeholder="깊이" value="${equipment.length}"
+                                   onchange="systemData.floorPlan.existingEquipment[${index}].length = parseInt(this.value) || 600; updateFloorPlan()" style="width: 100%;">
+                        </div>
+                    </div>
+                    <button onclick="removeExistingEquipment(${index})" style="background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 3px;">삭제</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 기존 설비 삭제
+        function removeExistingEquipment(index) {
+            systemData.floorPlan.existingEquipment.splice(index, 1);
+            updateExistingEquipmentList();
+            updateFloorPlan();
+        }
+
+        // 리액터 제품 추가
+        function addReactorProduct() {
+            const productId = document.getElementById('reactorProductSelect').value;
+            if (!productId) {
+                alert('제품을 선택해주세요.');
+                return;
+            }
+
+            const product = {
+                id: 'rp' + Date.now(),
+                x: 2000,
+                y: 2000,
+                productId: productId,
+                rotation: 0
+            };
+
+            systemData.floorPlan.reactorProducts.push(product);
+            updateReactorProductsList();
+            updateFloorPlan();
+
+            // 자동 배치 실행
+            autoPositionReactorProducts();
+        }
+
+        // 리액터 제품 목록 업데이트
+        function updateReactorProductsList() {
+            const container = document.getElementById('reactorProductsList');
+            container.innerHTML = '';
+
+            systemData.floorPlan.reactorProducts.forEach((product, index) => {
+                const productData = reactorProductDB[product.productId];
+                const div = document.createElement('div');
+                div.style.cssText = 'margin: 5px 0; padding: 10px; border: 1px solid #ddd; border-radius: 5px; background: #f9f9f9;';
+                div.innerHTML = `
+                    <div style="margin-bottom: 8px;"><strong>${productData.name}</strong></div>
+                    <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 X(mm):</label>
+                            <input type="number" placeholder="X좌표" value="${product.x}"
+                                   onchange="systemData.floorPlan.reactorProducts[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                        </div>
+                        <div>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 Y(mm):</label>
+                            <input type="number" placeholder="Y좌표" value="${product.y}"
+                                   onchange="systemData.floorPlan.reactorProducts[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                        </div>
+                    </div>
+                    <div style="margin-bottom: 8px;">
+                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">회전각(도):</label>
+                        <input type="number" placeholder="0-360도" value="${product.rotation}"
+                               onchange="systemData.floorPlan.reactorProducts[${index}].rotation = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                    </div>
+                    <button onclick="removeReactorProduct(${index})" style="background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 3px;">삭제</button>
+                `;
+                container.appendChild(div);
+            });
+        }
+
+        // 리액터 제품 삭제
+        function removeReactorProduct(index) {
+            systemData.floorPlan.reactorProducts.splice(index, 1);
+            updateReactorProductsList();
+            updateFloorPlan();
+        }
+
+        // 자동 배치 알고리즘
+        function autoPositionReactorProducts() {
+            const room = systemData.floorPlan.roomDimensions;
+            const products = systemData.floorPlan.reactorProducts;
+
+            if (products.length === 0) return;
+
+            // 간단한 격자 배치 알고리즘
+            const gridCols = Math.ceil(Math.sqrt(products.length));
+            const gridRows = Math.ceil(products.length / gridCols);
+
+            products.forEach((product, index) => {
+                const productData = reactorProductDB[product.productId];
+                if (!productData) return;
+
+                const col = index % gridCols;
+                const row = Math.floor(index / gridCols);
+
+                const cellWidth = room.width / gridCols;
+                const cellHeight = room.length / gridRows;
+
+                const margins = productData.safetyMargins;
+
+                product.x = col * cellWidth + margins.side;
+                product.y = row * cellHeight + margins.front;
+
+                // 경계 체크
+                const maxX = room.width - productData.dimensions.width - margins.side;
+                const maxY = room.length - productData.dimensions.length - margins.back;
+
+                product.x = Math.min(product.x, maxX);
+                product.y = Math.min(product.y, maxY);
+            });
+
+            updateReactorProductsList();
+            updateFloorPlan();
+        }
+
+        // 평면도 초기화
+        function resetFloorPlan() {
+            if (confirm('평면도 데이터를 모두 초기화하시겠습니까?')) {
+                systemData.floorPlan = {
+                    enabled: false,
+                    roomDimensions: { width: 0, length: 0, height: 0 },
+                    doors: [],
+                    existingEquipment: [],
+                    reactorProducts: [],
+                    scale: 1,
+                    gridSize: 100,
+                    safetyMargins: { front: 800, back: 600, side: 400 }
+                };
+
+                loadFloorPlanData();
+                updateFloorPlan();
+            }
+        }
+
+        // 평면도 저장
+        function saveFloorPlan() {
+            systemData.floorPlan.enabled = true;
+            closeFloorPlan();
+            alert('✅ 평면도가 저장되었습니다!');
+        }
+
+        // 평면도 PDF 출력
+        function exportFloorPlan() {
+            // 간단한 구현: 캔버스를 이미지로 변환하여 새 창에서 출력
+            const canvas = floorPlanCanvas;
+            const dataURL = canvas.toDataURL('image/png');
+
+            const newWindow = window.open('', '_blank');
+            newWindow.document.write(`
+                <html>
+                <head><title>평면도 출력</title></head>
+                <body style="margin: 0; text-align: center;">
+                    <h2>설치 위치 평면도</h2>
+                    <img src="${dataURL}" style="max-width: 100%; height: auto;">
+                    <br><br>
+                    <button onclick="window.print()">인쇄</button>
+                    <button onclick="window.close()">닫기</button>
+                </body>
+                </html>
+            `);
+        }
     </script>
 </body>
 </html>
