@@ -54,14 +54,14 @@
         }
 
         .header-btn {
-            padding: 8px 16px;
+            padding: 6px 12px;
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .header-btn:hover {
@@ -572,8 +572,8 @@
 
         .modal-content {
             background: white;
-            border-radius: 15px;
-            padding: 30px;
+            border-radius: 12px;
+            padding: 20px;
             width: 70vw;
             max-width: 70%;
             max-height: 70vh;
@@ -582,29 +582,29 @@
         }
 
         .modal-header {
-            font-size: 20px;
+            font-size: 18px;
             font-weight: 600;
-            margin-bottom: 20px;
+            margin-bottom: 12px;
             color: #333;
         }
 
         .modal-body {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .modal-footer {
             display: flex;
-            gap: 10px;
+            gap: 8px;
             justify-content: flex-end;
         }
 
         /* 버튼 스타일 */
         .btn {
-            padding: 10px 20px;
+            padding: 6px 12px;
             border: none;
-            border-radius: 8px;
+            border-radius: 6px;
             cursor: pointer;
-            font-size: 14px;
+            font-size: 13px;
             font-weight: 600;
             transition: all 0.3s;
         }
@@ -953,46 +953,142 @@
             #floorPlanModal .modal-content {
                 max-width: 95%;
                 max-height: 95vh;
-                padding: 15px;
+                padding: 10px;
             }
 
-            #floorPlanModal .modal-body {
-                flex-direction: column;
-                gap: 15px;
+            #floorPlanModalBody {
+                flex-direction: column !important;
+                gap: 10px !important;
             }
 
-            #floorPlanModal .modal-body > div:first-child {
-                flex: none;
-                width: 100%;
-                max-height: 40vh;
+            #floorPlanInputSection {
+                flex: none !important;
+                width: 100% !important;
+                max-height: 35vh !important;
                 overflow-y: auto;
                 border: 1px solid #ddd;
-                border-radius: 8px;
-                padding: 15px;
+                border-radius: 6px;
+                padding: 10px;
                 background: #f9f9f9;
+            }
+
+            /* 스마트폰에서 입력 요소 가로 정렬 */
+            #floorPlanInputSection > div {
+                display: flex;
+                flex-wrap: wrap;
+                gap: 8px;
+                align-items: flex-start;
+            }
+
+            #floorPlanInputSection h4 {
+                width: 100%;
+                font-size: 13px !important;
+                margin-bottom: 6px !important;
+            }
+
+            #floorPlanInputSection .floorplan-input-group {
+                display: inline-flex;
+                flex-direction: column;
+                gap: 2px;
+                min-width: fit-content;
+            }
+
+            #floorPlanInputSection label {
+                font-size: 11px;
+                white-space: nowrap;
+            }
+
+            #floorPlanInputSection button {
+                font-size: 11px !important;
+                padding: 4px 8px !important;
+                width: auto !important;
+            }
+
+            #floorPlanInputSection select {
+                font-size: 11px !important;
+                width: 120px !important;
             }
 
             #floorPlanModal .modal-body > div:last-child {
                 flex: 1;
-                min-height: 50vh;
+                min-height: 55vh;
             }
 
             #floorPlanModal canvas {
                 width: 100% !important;
-                height: 50vh !important;
+                height: 55vh !important;
                 touch-action: none;
             }
 
             #floorPlanModal .modal-footer {
                 flex-wrap: wrap;
-                gap: 8px;
+                gap: 6px;
             }
 
             #floorPlanModal .modal-footer button {
                 flex: 1;
-                min-width: calc(50% - 4px);
-                padding: 12px 8px;
-                font-size: 14px;
+                min-width: calc(50% - 3px);
+                padding: 10px 6px;
+                font-size: 12px;
+            }
+        }
+
+        /* 평면도 입력 필드 크기 조정 */
+        #floorPlanModal input[type="number"]:not([style*="width: 100%"]) {
+            width: 80px;
+        }
+
+        /* PC/태블릿 가로 모드 - 입력 섹션 세로 정렬 */
+        @media (min-width: 769px) {
+            #floorPlanInputSection {
+                flex: 0 0 200px !important;
+                max-height: 70vh !important;
+                border: none !important;
+                background: transparent !important;
+                padding: 0 !important;
+            }
+
+            #floorPlanInputSection > div {
+                display: block !important;
+            }
+
+            #floorPlanInputSection .floorplan-input-group {
+                display: block !important;
+                margin-bottom: 8px;
+            }
+
+            #floorPlanModalBody {
+                flex-direction: row !important;
+                gap: 15px !important;
+            }
+
+            #floorPlanModal .modal-body > div:last-child {
+                min-height: auto;
+            }
+
+            #floorPlanModal canvas {
+                height: 600px !important;
+            }
+        }
+
+        /* 태블릿 세로 모드 (768px 이하) */
+        @media (max-width: 768px) and (min-width: 481px) {
+            #floorPlanInputSection h4 {
+                font-size: 14px !important;
+            }
+
+            #floorPlanInputSection label {
+                font-size: 12px;
+            }
+
+            #floorPlanInputSection button {
+                font-size: 12px !important;
+                padding: 5px 10px !important;
+            }
+
+            #floorPlanInputSection select {
+                font-size: 12px !important;
+                width: 150px !important;
             }
         }
     </style>
@@ -1164,52 +1260,56 @@
                     <h3>📐 설치 위치 평면도</h3>
                     <span class="close" onclick="closeFloorPlan()">&times;</span>
                 </div>
-                <div class="modal-body" style="display: flex; gap: 20px;">
+                <div class="modal-body" id="floorPlanModalBody" style="display: flex; gap: 15px;">
                     <!-- 좌측: 입력 패널 -->
-                    <div style="flex: 0 0 300px; overflow-y: auto;">
-                        <div style="margin-bottom: 20px;">
-                            <h4>🏢 공간 정보</h4>
-                            <label>가로 길이 (mm)</label>
-                            <input type="number" id="roomWidth" placeholder="8000" value="8000" onchange="updateFloorPlan()">
-
-                            <label>세로 길이 (mm)</label>
-                            <input type="number" id="roomLength" placeholder="6000" value="6000" onchange="updateFloorPlan()">
-
-                            <label>높이 (mm)</label>
-                            <input type="number" id="roomHeight" placeholder="3000" value="3000" onchange="updateFloorPlan()">
+                    <div id="floorPlanInputSection" style="flex: 0 0 200px; overflow-y: auto; max-height: 70vh;">
+                        <div style="margin-bottom: 12px;">
+                            <h4 style="margin-bottom: 8px; font-size: 14px;">🏢 공간 정보</h4>
+                            <div class="floorplan-input-group">
+                                <label>가로(mm)</label>
+                                <input type="number" id="roomWidth" placeholder="8000" value="8000" onchange="updateFloorPlan()" inputmode="numeric" pattern="[0-9]*" style="width: 80px;">
+                            </div>
+                            <div class="floorplan-input-group">
+                                <label>세로(mm)</label>
+                                <input type="number" id="roomLength" placeholder="6000" value="6000" onchange="updateFloorPlan()" inputmode="numeric" pattern="[0-9]*" style="width: 80px;">
+                            </div>
                         </div>
 
-                        <div style="margin-bottom: 20px;">
-                            <h4>🚪 출입구</h4>
-                            <button class="btn btn-secondary" onclick="addDoor()">출입구 추가</button>
+                        <div style="margin-bottom: 12px;">
+                            <h4 style="margin-bottom: 8px; font-size: 14px;">🚪 출입구</h4>
+                            <button class="btn btn-secondary" onclick="addDoor()" style="font-size: 12px; width: 100%;">출입구 추가</button>
                             <div id="doorsList"></div>
                         </div>
 
-                        <div style="margin-bottom: 20px;">
-                            <h4>⚡ 기존 설비</h4>
-                            <button class="btn btn-secondary" onclick="addExistingEquipment()">기존설비 추가</button>
+                        <div style="margin-bottom: 12px;">
+                            <h4 style="margin-bottom: 8px; font-size: 14px;">⚡ 기존 설비</h4>
+                            <button class="btn btn-secondary" onclick="addExistingEquipment()" style="font-size: 12px; width: 100%;">기존설비 추가</button>
                             <div id="existingEquipmentList"></div>
                         </div>
 
-                        <div style="margin-bottom: 20px;">
-                            <h4>🔧 설치 제품</h4>
-                            <label>제품 선택</label>
-                            <select id="reactorProductSelect">
-                                <option value="">제품을 선택하세요</option>
-                                <option value="SVC-100">SVC 리액터 100MVAR</option>
-                                <option value="SVC-50">SVC 리액터 50MVAR</option>
-                                <option value="TCR-200">TCR 리액터 200MVAR</option>
-                                <option value="FCL-300">고장전류제한기 300MVA</option>
-                                <option value="1000kVA">1000kVA</option>
+                        <div style="margin-bottom: 12px;">
+                            <h4 style="margin-bottom: 8px; font-size: 14px;">🔧 설치 제품</h4>
+                            <label style="font-size: 12px;">제품 선택</label>
+                            <select id="reactorProductSelect" style="width: 100%; font-size: 12px; margin-bottom: 4px;">
+                                <option value="">제품 선택</option>
+                                <option value="30kVA">30kVA</option>
+                                <option value="50kVA">50kVA</option>
+                                <option value="75kVA">75kVA</option>
+                                <option value="100kVA">100kVA</option>
+                                <option value="150kVA">150kVA</option>
+                                <option value="200kVA">200kVA</option>
+                                <option value="300-400kVA">300~400kVA</option>
+                                <option value="500-800kVA">500~800kVA</option>
+                                <option value="900-1000kVA">900~1000kVA</option>
                             </select>
-                            <button class="btn btn-secondary" onclick="addReactorProduct()">제품 추가</button>
+                            <button class="btn btn-secondary" onclick="addReactorProduct()" style="font-size: 12px; width: 100%;">제품 추가</button>
                             <div id="reactorProductsList"></div>
                         </div>
                     </div>
 
                     <!-- 우측: 평면도 캔버스 -->
-                    <div style="flex: 1; border: 1px solid #ddd; position: relative;">
-                        <canvas id="floorPlanCanvas" width="800" height="600" style="width: 100%; height: 600px; cursor: crosshair;"></canvas>
+                    <div style="flex: 1; border: 1px solid #ddd; position: relative; overflow: auto;">
+                        <canvas id="floorPlanCanvas" width="800" height="600" style="width: 100%; height: 600px; cursor: crosshair; min-width: 600px; min-height: 500px;"></canvas>
                         <div style="position: absolute; bottom: 10px; left: 10px; background: rgba(255,255,255,0.9); padding: 5px; border-radius: 3px; font-size: 12px;">
                             <div>축척: <span id="scaleDisplay">1:100</span></div>
                             <div>격자: <span id="gridDisplay">100mm</span></div>
@@ -1232,6 +1332,7 @@
                     </div>
                 </div>
                 <div class="modal-footer">
+                    <button class="btn btn-secondary" onclick="resetFloorPlanZoom()">축척 리셋</button>
                     <button class="btn btn-secondary" onclick="resetFloorPlan()">초기화</button>
                     <button class="btn btn-secondary" onclick="exportFloorPlan()">PDF 출력</button>
                     <button class="btn btn-secondary" onclick="closeFloorPlan()">취소</button>
@@ -1288,52 +1389,70 @@
             }
         };
 
-        // 리액터 제품 치수 데이터베이스
+        // 몰드변압기 제품 데이터베이스
         const reactorProductDB = {
-            'SVC-100': {
-                name: 'SVC 리액터 100MVAR',
-                capacity: 100,
-                dimensions: { width: 2000, length: 3000, height: 2500 }, // mm
-                weight: 15000, // kg
-                coolingType: '자연냉각',
-                installationType: '옥내형',
-                safetyMargins: { front: 1000, back: 800, side: 600 }
+            '30kVA': {
+                name: '30kVA',
+                capacity: 30,
+                dimensions: { width: 500, length: 310, height: 760 },
+                weight: 62,
+                safetyMargins: { front: 0, back: 0, side: 0 }
             },
-            'SVC-50': {
-                name: 'SVC 리액터 50MVAR',
+            '50kVA': {
+                name: '50kVA',
                 capacity: 50,
-                dimensions: { width: 1500, length: 2500, height: 2000 },
-                weight: 8000,
-                coolingType: '자연냉각',
-                installationType: '옥내형',
-                safetyMargins: { front: 800, back: 600, side: 400 }
+                dimensions: { width: 600, length: 380, height: 950 },
+                weight: 100,
+                safetyMargins: { front: 0, back: 0, side: 0 }
             },
-            'TCR-200': {
-                name: 'TCR 리액터 200MVAR',
+            '75kVA': {
+                name: '75kVA',
+                capacity: 75,
+                dimensions: { width: 750, length: 410, height: 1200 },
+                weight: 145,
+                safetyMargins: { front: 0, back: 0, side: 0 }
+            },
+            '100kVA': {
+                name: '100kVA',
+                capacity: 100,
+                dimensions: { width: 820, length: 530, height: 1280 },
+                weight: 188,
+                safetyMargins: { front: 0, back: 0, side: 0 }
+            },
+            '150kVA': {
+                name: '150kVA',
+                capacity: 150,
+                dimensions: { width: 945, length: 500, height: 1530 },
+                weight: 280,
+                safetyMargins: { front: 0, back: 0, side: 0 }
+            },
+            '200kVA': {
+                name: '200kVA',
                 capacity: 200,
-                dimensions: { width: 2500, length: 4000, height: 3000 },
-                weight: 25000,
-                coolingType: '강제냉각',
-                installationType: '옥외형',
-                safetyMargins: { front: 1200, back: 1000, side: 800 }
+                dimensions: { width: 950, length: 500, height: 1530 },
+                weight: 300,
+                safetyMargins: { front: 0, back: 0, side: 0 }
             },
-            'FCL-300': {
-                name: '고장전류제한기 300MVA',
-                capacity: 300,
-                dimensions: { width: 1800, length: 3500, height: 2800 },
-                weight: 20000,
-                coolingType: '유냉각',
-                installationType: '옥내형',
-                safetyMargins: { front: 1000, back: 800, side: 600 }
+            '300-400kVA': {
+                name: '300~400kVA',
+                capacity: 350,
+                dimensions: { width: 750, length: 930, height: 1850 },
+                weight: 335,
+                safetyMargins: { front: 0, back: 0, side: 0 }
             },
-            '1000kVA': {
-                name: '1000kVA',
-                capacity: 1000,
-                dimensions: { width: 1500, length: 1500, height: 2000 },
-                weight: 12000,
-                coolingType: '자연냉각',
-                installationType: '옥내형',
-                safetyMargins: { front: 800, back: 600, side: 500 }
+            '500-800kVA': {
+                name: '500~800kVA',
+                capacity: 650,
+                dimensions: { width: 880, length: 1130, height: 1900 },
+                weight: 850,
+                safetyMargins: { front: 0, back: 0, side: 0 }
+            },
+            '900-1000kVA': {
+                name: '900~1000kVA',
+                capacity: 950,
+                dimensions: { width: 950, length: 1130, height: 2050 },
+                weight: 1250,
+                safetyMargins: { front: 0, back: 0, side: 0 }
             }
         };
 
@@ -2033,11 +2152,11 @@
                     </div>
                     <div class="detail-form-group">
                         <label>계약전력 (kW)</label>
-                        <input type="number" class="detail-form-control" id="kepcoContract" value="${systemData.kepco.contractPower}">
+                        <input type="number" class="detail-form-control" id="kepcoContract" value="${systemData.kepco.contractPower}" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>차단기 (A)</label>
-                        <input type="number" class="detail-form-control" id="kepcoBreaker" value="${systemData.kepco.breaker || 0}">
+                        <input type="number" class="detail-form-control" id="kepcoBreaker" value="${systemData.kepco.breaker || 0}" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
@@ -2057,15 +2176,15 @@
                     </div>
                     <div class="detail-form-group">
                         <label>용량 (kVA)</label>
-                        <input type="number" class="detail-form-control" id="editTrCapacity" value="${tr.capacity || 0}">
+                        <input type="number" class="detail-form-control" id="editTrCapacity" value="${tr.capacity || 0}" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>부하율 (%)</label>
-                        <input type="number" class="detail-form-control" id="editTrLoadRate" value="${tr.loadRate}" min="0" max="100">
+                        <input type="number" class="detail-form-control" id="editTrLoadRate" value="${tr.loadRate}" min="0" max="100" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>차단기 (A)</label>
-                        <input type="number" class="detail-form-control" id="editTrBreaker" value="${tr.breaker || 0}">
+                        <input type="number" class="detail-form-control" id="editTrBreaker" value="${tr.breaker || 0}" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
@@ -2085,15 +2204,15 @@
                     </div>
                     <div class="detail-form-group">
                         <label>주차단기 (A)</label>
-                        <input type="number" class="detail-form-control" id="editMccBreaker" value="${mcc.mainBreaker}">
+                        <input type="number" class="detail-form-control" id="editMccBreaker" value="${mcc.mainBreaker}" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>총 분기 수</label>
-                        <input type="number" class="detail-form-control" id="editMccBranches" value="${mcc.branches}">
+                        <input type="number" class="detail-form-control" id="editMccBranches" value="${mcc.branches}" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>부하율 (%)</label>
-                        <input type="number" class="detail-form-control" id="editMccLoadRate" value="${mcc.loadRate || 0}" min="0" max="100">
+                        <input type="number" class="detail-form-control" id="editMccLoadRate" value="${mcc.loadRate || 0}" min="0" max="100" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
@@ -2113,7 +2232,7 @@
                     </div>
                     <div class="detail-form-group">
                         <label>부하율 (%)</label>
-                        <input type="number" class="detail-form-control" id="editLoadRate" value="${load.loadRate}" min="0" max="100">
+                        <input type="number" class="detail-form-control" id="editLoadRate" value="${load.loadRate}" min="0" max="100" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
                         <label>운전 시간</label>
@@ -3061,7 +3180,7 @@
             if (fp.enabled) {
                 document.getElementById('roomWidth').value = fp.roomDimensions.width || '';
                 document.getElementById('roomLength').value = fp.roomDimensions.length || '';
-                document.getElementById('roomHeight').value = fp.roomDimensions.height || '';
+                // roomHeight 필드 제거됨
 
                 updateDoorsList();
                 updateExistingEquipmentList();
@@ -3082,20 +3201,22 @@
             // 데이터 업데이트
             const width = parseInt(document.getElementById('roomWidth').value) || 8000;
             const length = parseInt(document.getElementById('roomLength').value) || 6000;
-            const height = parseInt(document.getElementById('roomHeight').value) || 3000;
+            const height = 3000;  // 기본값 고정 (입력 필드 제거됨)
 
             systemData.floorPlan.roomDimensions = { width, length, height };
 
-            // 축척 계산 (캔버스 크기에 맞춤)
-            const canvasWidth = canvas.getBoundingClientRect().width - 40;
-            const canvasHeight = canvas.getBoundingClientRect().height - 40;
-            const scaleX = canvasWidth / width;
-            const scaleY = canvasHeight / length;
-            systemData.floorPlan.scale = Math.min(scaleX, scaleY);
+            // 축척 계산 (초기값 또는 자동 맞춤, offset 고려)
+            if (!systemData.floorPlan.scale || systemData.floorPlan.scale === 0) {
+                const canvasWidth = canvas.getBoundingClientRect().width - 120;  // offsetX 여백 + 패딩 (100→120)
+                const canvasHeight = canvas.getBoundingClientRect().height - 80;  // offsetY 여백 + 패딩 (60→80)
+                const scaleX = canvasWidth / width;
+                const scaleY = canvasHeight / length;
+                systemData.floorPlan.scale = Math.min(scaleX, scaleY) * 0.95;  // 95%로 축소하여 여유 확보
+            }
 
             const scale = systemData.floorPlan.scale;
-            const offsetX = 20;
-            const offsetY = 20;
+            const offsetX = 50;
+            const offsetY = 30;
 
             // 방이 정의된 경우
             if (width > 0 && length > 0) {
@@ -3218,12 +3339,12 @@
             const gridSize = systemData.floorPlan.gridSize; // 100mm
 
             // 1단계: 기본 격자 (100mm 간격)
-            ctx.strokeStyle = 'rgba(180, 180, 180, 0.5)';
-            ctx.lineWidth = 0.5;
+            ctx.strokeStyle = 'rgba(150, 150, 150, 0.8)';  // 더 진하게
+            ctx.lineWidth = 0.8;  // 더 두껍게
             ctx.setLineDash([]);
 
             // 100mm 격자
-            const minPixelSpacing = 5; // 최소 픽셀 간격
+            const minPixelSpacing = 3; // 최소 픽셀 간격 (5→3으로 축소)
             const actualSpacing = gridSize * scale;
 
             if (actualSpacing >= minPixelSpacing) {
@@ -3244,12 +3365,33 @@
                     ctx.lineTo(offsetX + roomWidth * scale, canvasY);
                     ctx.stroke();
                 }
+            } else {
+                // 축척이 너무 작을 때는 500mm 격자만 표시
+                const midGridSize = gridSize * 5; // 500mm
+                ctx.strokeStyle = 'rgba(150, 150, 150, 0.6)';
+                ctx.lineWidth = 1;
+
+                for (let x = 0; x <= roomWidth; x += midGridSize) {
+                    const canvasX = offsetX + x * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(canvasX, offsetY);
+                    ctx.lineTo(canvasX, offsetY + roomLength * scale);
+                    ctx.stroke();
+                }
+
+                for (let y = 0; y <= roomLength; y += midGridSize) {
+                    const canvasY = offsetY + y * scale;
+                    ctx.beginPath();
+                    ctx.moveTo(offsetX, canvasY);
+                    ctx.lineTo(offsetX + roomWidth * scale, canvasY);
+                    ctx.stroke();
+                }
             }
 
             // 2단계: 500mm 격자 (중간 격자)
             const midGridSize = gridSize * 5; // 500mm
-            ctx.strokeStyle = 'rgba(120, 120, 120, 0.7)';
-            ctx.lineWidth = 0.8;
+            ctx.strokeStyle = 'rgba(100, 100, 100, 0.9)';  // 더 진하게
+            ctx.lineWidth = 1.2;  // 더 두껍게
 
             // 500mm 격자 세로선
             for (let x = 0; x <= roomWidth; x += midGridSize) {
@@ -3271,8 +3413,8 @@
 
             // 3단계: 주격자 (1000mm = 1m 간격)
             const majorGridSize = gridSize * 10; // 1000mm
-            ctx.strokeStyle = 'rgba(80, 80, 80, 0.9)';
-            ctx.lineWidth = 1.2;
+            ctx.strokeStyle = 'rgba(60, 60, 60, 1.0)';  // 더 진하게
+            ctx.lineWidth = 1.5;  // 더 두껍게
 
             // 1m 격자 세로선
             for (let x = 0; x <= roomWidth; x += majorGridSize) {
@@ -3292,26 +3434,23 @@
                 ctx.stroke();
             }
 
-            // 격자점 표시 (100mm 교차점에만)
-            ctx.fillStyle = 'rgba(100, 100, 100, 0.6)';
+            // 격자점 표시 (축척이 충분히 클 때만 - 500mm 이상 교차점)
+            if (actualSpacing >= 10) {  // 충분히 큰 경우만 점 표시
+                const midGridSize = gridSize * 5; // 500mm
+                for (let x = 0; x <= roomWidth; x += midGridSize) {
+                    for (let y = 0; y <= roomLength; y += midGridSize) {
+                        const canvasX = offsetX + x * scale;
+                        const canvasY = offsetY + y * scale;
 
-            for (let x = 0; x <= roomWidth; x += gridSize) {
-                for (let y = 0; y <= roomLength; y += gridSize) {
-                    const canvasX = offsetX + x * scale;
-                    const canvasY = offsetY + y * scale;
-
-                    // 1m 교차점은 더 큰 점
-                    if (x % majorGridSize === 0 && y % majorGridSize === 0) {
-                        ctx.fillStyle = 'rgba(60, 60, 60, 0.9)';
-                        ctx.fillRect(canvasX - 1.5, canvasY - 1.5, 3, 3);
-                    } else if (x % midGridSize === 0 && y % midGridSize === 0) {
-                        // 500mm 교차점은 중간 크기 점
-                        ctx.fillStyle = 'rgba(80, 80, 80, 0.7)';
-                        ctx.fillRect(canvasX - 1, canvasY - 1, 2, 2);
-                    } else {
-                        // 100mm 교차점은 작은 점
-                        ctx.fillStyle = 'rgba(100, 100, 100, 0.6)';
-                        ctx.fillRect(canvasX - 0.5, canvasY - 0.5, 1, 1);
+                        // 1m 교차점은 더 큰 점
+                        if (x % majorGridSize === 0 && y % majorGridSize === 0) {
+                            ctx.fillStyle = 'rgba(60, 60, 60, 0.9)';
+                            ctx.fillRect(canvasX - 2, canvasY - 2, 4, 4);
+                        } else {
+                            // 500mm 교차점
+                            ctx.fillStyle = 'rgba(100, 100, 100, 0.7)';
+                            ctx.fillRect(canvasX - 1.5, canvasY - 1.5, 3, 3);
+                        }
                     }
                 }
             }
@@ -3323,7 +3462,7 @@
         function drawRoom(ctx, width, length, scale, offsetX, offsetY) {
             ctx.strokeStyle = '#333';
             ctx.lineWidth = 3;
-            ctx.fillStyle = '#f9f9f9';
+            ctx.fillStyle = '#ffffff';  // 순백색으로 변경 (격자가 더 잘 보이도록)
 
             const rect = {
                 x: offsetX,
@@ -3345,7 +3484,7 @@
 
             // 세로 치수
             ctx.save();
-            ctx.translate(offsetX - 15, offsetY + length * scale / 2);
+            ctx.translate(offsetX - 20, offsetY + length * scale / 2);
             ctx.rotate(-Math.PI / 2);
             ctx.fillText(`${length}mm`, 0, 0);
             ctx.restore();
@@ -3751,7 +3890,17 @@
 
         function onFloorPlanWheel(e) {
             e.preventDefault();
-            // 줌 기능 (향후 구현)
+
+            // 줌 인/아웃 기능
+            const delta = e.deltaY > 0 ? 0.9 : 1.1;  // 휠 다운: 축소, 휠 업: 확대
+            systemData.floorPlan.scale *= delta;
+
+            // 최소/최대 배율 제한
+            const minScale = 0.01;  // 0.1 → 0.01로 변경 (더 많이 축소 가능)
+            const maxScale = 3;
+            systemData.floorPlan.scale = Math.max(minScale, Math.min(maxScale, systemData.floorPlan.scale));
+
+            updateFloorPlan();
         }
 
         // 격자에 스냅하는 함수 (100mm 단위)
@@ -3763,8 +3912,8 @@
         // 클릭 위치의 객체 찾기
         function findFloorPlanItemAt(canvasX, canvasY) {
             const scale = systemData.floorPlan.scale;
-            const offsetX = 20;
-            const offsetY = 20;
+            const offsetX = 50;
+            const offsetY = 30;
 
             // 리액터 제품 검사
             for (let product of systemData.floorPlan.reactorProducts) {
@@ -3848,20 +3997,20 @@
                     <div style="margin-bottom: 8px; font-weight: bold;">출입구 ${index + 1}</div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
                         <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 X(mm):</label>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">X(mm):</label>
                             <input type="number" placeholder="X좌표" value="${door.x}"
-                                   onchange="systemData.floorPlan.doors[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                                   onchange="systemData.floorPlan.doors[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 Y(mm):</label>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">Y(mm):</label>
                             <input type="number" placeholder="Y좌표" value="${door.y}"
-                                   onchange="systemData.floorPlan.doors[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                                   onchange="systemData.floorPlan.doors[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                         </div>
                     </div>
                     <div style="margin-bottom: 8px;">
-                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">문 폭(mm):</label>
+                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">폭(mm):</label>
                         <input type="number" placeholder="문폭" value="${door.width}"
-                               onchange="systemData.floorPlan.doors[${index}].width = parseInt(this.value) || 900; updateFloorPlan()" style="width: 100%;">
+                               onchange="systemData.floorPlan.doors[${index}].width = parseInt(this.value) || 900; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div style="margin-bottom: 8px; padding: 5px; background: #e8f5e8; border-radius: 3px; font-size: 12px; color: #2e7d32;">
                         현재 방향: <strong>${door.orientation === 'horizontal' ? '가로형' : '세로형'}</strong> (자동 설정)
@@ -3911,26 +4060,26 @@
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
                         <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 X(mm):</label>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">X(mm):</label>
                             <input type="number" placeholder="X좌표" value="${equipment.x}"
-                                   onchange="systemData.floorPlan.existingEquipment[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                                   onchange="systemData.floorPlan.existingEquipment[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 Y(mm):</label>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">Y(mm):</label>
                             <input type="number" placeholder="Y좌표" value="${equipment.y}"
-                                   onchange="systemData.floorPlan.existingEquipment[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                                   onchange="systemData.floorPlan.existingEquipment[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                         </div>
                     </div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
                         <div>
                             <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">폭(mm):</label>
                             <input type="number" placeholder="폭" value="${equipment.width}"
-                                   onchange="systemData.floorPlan.existingEquipment[${index}].width = parseInt(this.value) || 800; updateFloorPlan()" style="width: 100%;">
+                                   onchange="systemData.floorPlan.existingEquipment[${index}].width = parseInt(this.value) || 800; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                         </div>
                         <div>
                             <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">깊이(mm):</label>
                             <input type="number" placeholder="깊이" value="${equipment.length}"
-                                   onchange="systemData.floorPlan.existingEquipment[${index}].length = parseInt(this.value) || 600; updateFloorPlan()" style="width: 100%;">
+                                   onchange="systemData.floorPlan.existingEquipment[${index}].length = parseInt(this.value) || 600; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                         </div>
                     </div>
                     <button onclick="removeExistingEquipment(${index})" style="background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 3px;">삭제</button>
@@ -3983,20 +4132,20 @@
                     <div style="margin-bottom: 8px;"><strong>${productData.name}</strong></div>
                     <div style="display: grid; grid-template-columns: 1fr 1fr; gap: 5px; margin-bottom: 8px;">
                         <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 X(mm):</label>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">X(mm):</label>
                             <input type="number" placeholder="X좌표" value="${product.x}"
-                                   onchange="systemData.floorPlan.reactorProducts[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                                   onchange="systemData.floorPlan.reactorProducts[${index}].x = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                         </div>
                         <div>
-                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">위치 Y(mm):</label>
+                            <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">Y(mm):</label>
                             <input type="number" placeholder="Y좌표" value="${product.y}"
-                                   onchange="systemData.floorPlan.reactorProducts[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                                   onchange="systemData.floorPlan.reactorProducts[${index}].y = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                         </div>
                     </div>
                     <div style="margin-bottom: 8px;">
-                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">회전각(도):</label>
+                        <label style="display: block; font-size: 12px; color: #666; margin-bottom: 2px;">각도(°):</label>
                         <input type="number" placeholder="0-360도" value="${product.rotation}"
-                               onchange="systemData.floorPlan.reactorProducts[${index}].rotation = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;">
+                               onchange="systemData.floorPlan.reactorProducts[${index}].rotation = parseInt(this.value) || 0; updateFloorPlan()" style="width: 100%;" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <button onclick="removeReactorProduct(${index})" style="background: #f44336; color: white; border: none; padding: 2px 6px; border-radius: 3px;">삭제</button>
                 `;
@@ -4046,6 +4195,12 @@
             });
 
             updateReactorProductsList();
+            updateFloorPlan();
+        }
+
+        // 평면도 축척 리셋
+        function resetFloorPlanZoom() {
+            systemData.floorPlan.scale = 0;  // 0으로 설정하면 updateFloorPlan에서 자동 계산
             updateFloorPlan();
         }
 
