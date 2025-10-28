@@ -54,14 +54,14 @@
         }
 
         .header-btn {
-            padding: 6px 12px;
+            padding: 5px 10px;
             background: rgba(255,255,255,0.2);
             border: 1px solid rgba(255,255,255,0.3);
             color: white;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
             transition: all 0.3s;
-            font-size: 13px;
+            font-size: 12px;
         }
 
         .header-btn:hover {
@@ -203,12 +203,13 @@
             display: inline-block;
             background: white;
             border: 2px solid #667eea;
-            border-radius: 10px;
-            padding: 15px 20px;
-            margin: 10px;
+            border-radius: 8px;
+            padding: 10px 14px;
+            margin: 6px;
             cursor: pointer;
             transition: all 0.3s;
-            box-shadow: 0 3px 10px rgba(0,0,0,0.1);
+            box-shadow: 0 2px 8px rgba(0,0,0,0.1);
+            min-width: 140px;
         }
 
         .tree-node:hover {
@@ -242,14 +243,18 @@
         }
 
         .node-title {
-            font-weight: 600;
-            font-size: 14px;
-            margin-bottom: 5px;
+            font-weight: 700;
+            font-size: 13px;
+            margin-bottom: 4px;
+            color: #2c3e50;
+            line-height: 1.3;
         }
 
         .node-info {
-            font-size: 12px;
-            opacity: 0.8;
+            font-size: 11px;
+            color: #555;
+            font-weight: 500;
+            line-height: 1.4;
         }
         .node-info.missing {
             color: #f44336;
@@ -307,11 +312,11 @@
             background: #ff9800;
             color: white;
             border: none;
-            border-radius: 6px;
-            padding: 6px 10px;
-            font-size: 12px;
+            border-radius: 5px;
+            padding: 5px 9px;
+            font-size: 11px;
             cursor: pointer;
-            margin: 5px 0;
+            margin: 3px 0;
             transition: all 0.2s;
         }
 
@@ -456,15 +461,15 @@
         }
 
         .detail-form-group {
-            margin-bottom: 20px;
+            margin-bottom: 12px;
         }
 
         .detail-form-group label {
             display: block;
             font-weight: 600;
-            margin-bottom: 8px;
+            margin-bottom: 5px;
             color: #333;
-            font-size: 14px;
+            font-size: 13px;
         }
 
         .detail-form-control {
@@ -589,7 +594,7 @@
         }
 
         .modal-body {
-            margin-bottom: 12px;
+            margin-bottom: 8px;
         }
 
         .modal-footer {
@@ -600,11 +605,11 @@
 
         /* 버튼 스타일 */
         .btn {
-            padding: 6px 12px;
+            padding: 5px 10px;
             border: none;
-            border-radius: 6px;
+            border-radius: 5px;
             cursor: pointer;
-            font-size: 13px;
+            font-size: 12px;
             font-weight: 600;
             transition: all 0.3s;
         }
@@ -784,20 +789,20 @@
             }
 
             .photo-btn {
-                padding: 8px 12px;
-                font-size: 14px;
+                padding: 6px 10px;
+                font-size: 13px;
                 width: 100%;
-                margin: 8px 0;
+                margin: 4px 0;
             }
 
             /* 터치 친화적 버튼 크기 */
             .btn {
-                min-height: 44px;
+                min-height: 40px;
                 touch-action: manipulation;
             }
 
             .header-btn {
-                min-height: 40px;
+                min-height: 36px;
                 touch-action: manipulation;
             }
 
@@ -872,7 +877,7 @@
         }
 
         .confirm-dialog button {
-            padding: 5px 15px;
+            padding: 4px 12px;
             border: none;
             border-radius: 5px;
             cursor: pointer;
@@ -882,8 +887,8 @@
         /* 업체정보 모달 스타일 */
         #companyInfoModal .modal-body label {
             display: block;
-            margin-top: 15px;
-            margin-bottom: 5px;
+            margin-top: 10px;
+            margin-bottom: 4px;
             font-weight: bold;
             color: #333;
         }
@@ -891,10 +896,10 @@
         #companyInfoModal .modal-body input,
         #companyInfoModal .modal-body textarea {
             width: 100%;
-            padding: 10px;
+            padding: 8px;
             border: 1px solid #ddd;
             border-radius: 4px;
-            font-size: 14px;
+            font-size: 13px;
             box-sizing: border-box;
         }
 
@@ -929,9 +934,9 @@
             }
 
             .detail-footer .btn {
-                padding: 15px 20px;
-                font-size: 16px;
-                min-height: 50px;
+                padding: 12px 16px;
+                font-size: 15px;
+                min-height: 44px;
             }
 
             .tree-level {
@@ -1028,7 +1033,7 @@
             #floorPlanModal .modal-footer button {
                 flex: 1;
                 min-width: calc(50% - 3px);
-                padding: 10px 6px;
+                padding: 8px 6px;
                 font-size: 12px;
             }
         }
@@ -1144,8 +1149,8 @@
                         <!-- Level 1: 한전 수전 -->
                         <div class="tree-level tree-level-1" id="level1">
                             <div class="tree-node" id="kepco" onclick="showNodeDetail('kepco')" style="background: #f3e5f5;">
-                                <div class="node-title">🏭 한전 수전</div>
-                                <div class="node-info">22.9kV / 0kW</div>
+                                <div class="node-title">한전 수전</div>
+                                <div class="node-info">-</div>
                                 <div class="node-status empty">-</div>
                                 <div class="node-photos" id="photos-kepco"></div>
                             </div>
@@ -1231,17 +1236,14 @@
                     <label>주소</label>
                     <input type="text" id="companyAddress" placeholder="업체 주소">
 
-                    <label>연락처</label>
-                    <input type="text" id="companyContact" placeholder="전화번호">
-
                     <label>담당자</label>
                     <input type="text" id="companyManager" placeholder="담당자명">
 
+                    <label>연락처</label>
+                    <input type="text" id="companyContact" placeholder="전화번호">
+
                     <label>조사일자</label>
                     <input type="date" id="surveyDate">
-
-                    <label>계약일자</label>
-                    <input type="date" id="contractDate">
 
                     <label>비고</label>
                     <textarea id="companyNotes" placeholder="기타 메모"></textarea>
@@ -1351,12 +1353,12 @@
                 contact: '',
                 manager: '',
                 surveyDate: '',
-                contractDate: '',
                 notes: ''
             },
             kepco: {
                 voltage: '22.9kV',
-                contractPower: 0,
+                contractPower: '',
+                breaker: '',
                 receptionType: '',
                 vcb: '',
                 status: 'empty'
@@ -1524,11 +1526,12 @@
                 id: trId,
                 title: `변압기${transformerCounter}`,
                 name: `주변압기 #${transformerCounter}`,
-                capacity: 1500,
+                capacity: '',
+                voltage: '',
+                breaker: '',
                 primaryVoltage: 22900,
                 secondaryVoltage: '380/220',
                 type: 'Oil',
-                loadRate: 0,
                 status: 'empty'
             };
 
@@ -1655,7 +1658,6 @@
                 title: `분전${transformerNumber}-${panelSequence}`,
                 name: `MCC-${transformerNumber}-${panelSequence} 동력반`,
                 ratedCurrent: 2000,
-                branches: 20,
                 purpose: '동력반',
                 status: 'empty'
             };
@@ -1784,8 +1786,9 @@
                 name: `냉동기`,
                 power: 500,
                 quantity: 1,
-                type: '정전압부하',
-                operation: '24시간',
+                type: '',
+                loadRate: '',
+                notes: '',
                 status: 'empty'
             };
 
@@ -1822,10 +1825,10 @@
                     id: trId,
                     title: name,
                     capacity: capacity,
+                    voltage: secondaryV,
                     primaryVoltage: primaryV,
                     secondaryVoltage: secondaryV,
                     type: type,
-                    loadRate: 0,
                     status: 'empty'
                 };
                 
@@ -1841,20 +1844,17 @@
                 
                 const name = document.getElementById('newMccName').value || `MCC-${mccCounter + 1}`;
                 const breaker = parseInt(document.getElementById('newMccBreaker').value) || 1000;
-                const branches = parseInt(document.getElementById('newMccBranches').value) || 10;
                 const purpose = document.getElementById('newMccPurpose').value;
-                
+
                 mccCounter++;
                 const mccId = `mcc${mccCounter}`;
-                
+
                 systemData.panels[mccId] = {
                     id: mccId,
                     title: name,
                     transformer: transformerId,
                     mainBreaker: breaker,
-                    branches: branches,
                     purpose: purpose,
-                    spareBranches: 0,
                     status: 'empty'
                 };
                 
@@ -1890,8 +1890,8 @@
                     capacity: capacity,
                     quantity: quantity,
                     type: type,
-                    operationHours: operation,
-                    loadRate: 80,
+                    loadRate: '',
+                    notes: '',
                     status: 'empty'
                 };
                 
@@ -1922,24 +1922,30 @@
 
             const tr = systemData.transformers[trId];
 
-            // 용량 정보 확인
-            let capacityInfo = '';
-            let capacityClass = '';
-            if (tr.capacity && tr.capacity > 0) {
-                capacityInfo = `${tr.capacity}kVA`;
-            } else {
-                capacityInfo = '용량 미입력';
-                capacityClass = ' missing';
+            // 변압기 정보 구성
+            let infoLines = [];
+            if (tr.capacity && tr.capacity !== '') {
+                infoLines.push(`${tr.capacity}kVA`);
             }
+            if (tr.voltage && tr.voltage !== '') {
+                infoLines.push(`${tr.voltage}V`);
+            }
+            if (tr.breaker && tr.breaker !== '') {
+                infoLines.push(`${tr.breaker}A`);
+            }
+
+            let capacityInfo = infoLines.length > 0 ? infoLines.join(' / ') : '-';
+            let capacityClass = infoLines.length === 0 ? ' missing' : '';
 
             node.innerHTML = `
                 <div class="node-actions">
                     <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${trId}')">✎</button>
                     <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${trId}', 'transformer')">×</button>
                 </div>
-                <div class="node-title">🔌 ${tr.title}</div>
+                <div class="node-title">${tr.title}</div>
                 <div class="node-info${capacityClass}">${capacityInfo}</div>
                 <div class="node-status ${tr.status}">${tr.status === 'complete' ? '✓' : tr.status === 'incomplete' ? '!' : '-'}</div>
+                <div class="node-photos" id="photos-${trId}"></div>
             `;
 
             level2.insertBefore(node, addBtn);
@@ -1967,10 +1973,10 @@
             // 주차단기 정보 확인
             let breakerInfo = '';
             let breakerClass = '';
-            if (mcc.mainBreaker && mcc.mainBreaker.trim()) {
-                breakerInfo = mcc.mainBreaker;
+            if (mcc.mainBreaker && mcc.mainBreaker !== '') {
+                breakerInfo = `${mcc.mainBreaker}A`;
             } else {
-                breakerInfo = '미입력';
+                breakerInfo = '-';
                 breakerClass = ' missing';
             }
 
@@ -1979,9 +1985,10 @@
                     <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${mccId}')">✎</button>
                     <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${mccId}', 'mcc')">×</button>
                 </div>
-                <div class="node-title">📊 ${mcc.title}</div>
-                <div class="node-info${breakerClass}">주차단기: ${breakerInfo}</div>
+                <div class="node-title">${mcc.title}</div>
+                <div class="node-info${breakerClass}">${breakerInfo}</div>
                 <div class="node-status ${mcc.status}">${mcc.status === 'complete' ? '✓' : mcc.status === 'incomplete' ? '!' : '-'}</div>
+                <div class="node-photos" id="photos-${mccId}"></div>
             `;
 
             level3.insertBefore(node, addBtn);
@@ -2002,24 +2009,27 @@
 
             const load = systemData.loads[loadId];
 
-            // 용량 정보 확인
-            let capacityInfo = '';
-            let capacityClass = '';
-            if (load.power && load.power > 0) {
-                capacityInfo = `${load.power}kW×${load.quantity || 1}`;
-            } else {
-                capacityInfo = '용량 미입력';
-                capacityClass = ' missing';
+            // 부하 정보 구성
+            let infoLines = [];
+            if (load.type && load.type !== '') {
+                infoLines.push(load.type);
             }
+            if (load.loadRate && load.loadRate !== '') {
+                infoLines.push(`${load.loadRate}%`);
+            }
+
+            let capacityInfo = infoLines.length > 0 ? infoLines.join(' / ') : '-';
+            let capacityClass = infoLines.length === 0 ? ' missing' : '';
 
             node.innerHTML = `
                 <div class="node-actions">
                     <button class="node-action-btn edit" onclick="event.stopPropagation(); openDetail('${loadId}')">✎</button>
                     <button class="node-action-btn delete" onclick="event.stopPropagation(); deleteNode('${loadId}', 'load')">×</button>
                 </div>
-                <div class="node-title">⚙️ ${load.title}</div>
+                <div class="node-title">${load.title}</div>
                 <div class="node-info${capacityClass}">${capacityInfo}</div>
                 <div class="node-status ${load.status}">${load.status === 'complete' ? '✓' : load.status === 'incomplete' ? '!' : '-'}</div>
+                <div class="node-photos" id="photos-${loadId}"></div>
             `;
 
             level4.insertBefore(node, addBtn);
@@ -2152,11 +2162,11 @@
                     </div>
                     <div class="detail-form-group">
                         <label>계약전력 (kW)</label>
-                        <input type="number" class="detail-form-control" id="kepcoContract" value="${systemData.kepco.contractPower}" inputmode="numeric" pattern="[0-9]*">
+                        <input type="number" class="detail-form-control" id="kepcoContract" value="${systemData.kepco.contractPower || ''}" inputmode="numeric" pattern="[0-9]*" placeholder="">
                     </div>
                     <div class="detail-form-group">
                         <label>차단기 (A)</label>
-                        <input type="number" class="detail-form-control" id="kepcoBreaker" value="${systemData.kepco.breaker || 0}" inputmode="numeric" pattern="[0-9]*">
+                        <input type="number" class="detail-form-control" id="kepcoBreaker" value="${systemData.kepco.breaker || ''}" inputmode="numeric" pattern="[0-9]*" placeholder="">
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
@@ -2176,19 +2186,21 @@
                     </div>
                     <div class="detail-form-group">
                         <label>용량 (kVA)</label>
-                        <input type="number" class="detail-form-control" id="editTrCapacity" value="${tr.capacity || 0}" inputmode="numeric" pattern="[0-9]*">
+                        <input type="number" class="detail-form-control" id="editTrCapacity" value="${tr.capacity || ''}" placeholder="" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
-                        <label>부하율 (%)</label>
-                        <input type="number" class="detail-form-control" id="editTrLoadRate" value="${tr.loadRate}" min="0" max="100" inputmode="numeric" pattern="[0-9]*">
+                        <label>전압 (V)</label>
+                        <input type="text" class="detail-form-control" id="editTrVoltage" value="${tr.voltage || ''}" placeholder="">
                     </div>
                     <div class="detail-form-group">
                         <label>차단기 (A)</label>
-                        <input type="number" class="detail-form-control" id="editTrBreaker" value="${tr.breaker || 0}" inputmode="numeric" pattern="[0-9]*">
+                        <input type="number" class="detail-form-control" id="editTrBreaker" value="${tr.breaker || ''}" inputmode="numeric" pattern="[0-9]*" placeholder="">
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
                         <button class="photo-btn" onclick="addPhoto('${nodeId}')">📸 사진 촬영</button>
+                        <button class="photo-btn" onclick="addPhoto('${nodeId}', 'breaker-label')" style="margin-left: 5px;">🏷️ 차단기 라벨</button>
+                        <button class="photo-btn" onclick="addPhoto('${nodeId}', 'transformer-config')" style="margin-left: 5px;">⚙️ 변압기 구성</button>
                         <div class="node-photos" id="detail-photos-${nodeId}" style="margin-top: 10px; max-width: 100%;"></div>
                     </div>
                 `;
@@ -2207,16 +2219,10 @@
                         <input type="number" class="detail-form-control" id="editMccBreaker" value="${mcc.mainBreaker}" inputmode="numeric" pattern="[0-9]*">
                     </div>
                     <div class="detail-form-group">
-                        <label>총 분기 수</label>
-                        <input type="number" class="detail-form-control" id="editMccBranches" value="${mcc.branches}" inputmode="numeric" pattern="[0-9]*">
-                    </div>
-                    <div class="detail-form-group">
-                        <label>부하율 (%)</label>
-                        <input type="number" class="detail-form-control" id="editMccLoadRate" value="${mcc.loadRate || 0}" min="0" max="100" inputmode="numeric" pattern="[0-9]*">
-                    </div>
-                    <div class="detail-form-group">
                         <label>현장 사진</label>
                         <button class="photo-btn" onclick="addPhoto('${nodeId}')">📸 사진 촬영</button>
+                        <button class="photo-btn" onclick="addPhoto('${nodeId}', 'breaker-label')" style="margin-left: 5px;">🏷️ 차단기 라벨</button>
+                        <button class="photo-btn" onclick="addPhoto('${nodeId}', 'panel-config')" style="margin-left: 5px;">📋 분전반 구성</button>
                         <div class="node-photos" id="detail-photos-${nodeId}" style="margin-top: 10px; max-width: 100%;"></div>
                     </div>
                 `;
@@ -2231,17 +2237,16 @@
                         <input type="text" class="detail-form-control" id="editLoadName" value="${load.title}">
                     </div>
                     <div class="detail-form-group">
-                        <label>부하율 (%)</label>
-                        <input type="number" class="detail-form-control" id="editLoadRate" value="${load.loadRate}" min="0" max="100" inputmode="numeric" pattern="[0-9]*">
+                        <label>부하 종류</label>
+                        <input type="text" class="detail-form-control" id="editLoadType" value="${load.type || ''}" placeholder="">
                     </div>
                     <div class="detail-form-group">
-                        <label>운전 시간</label>
-                        <select class="detail-form-control" id="editLoadOperationHours">
-                            <option ${load.operationHours === '24시간' ? 'selected' : ''}>24시간</option>
-                            <option ${load.operationHours === '주간(8H)' ? 'selected' : ''}>주간(8H)</option>
-                            <option ${load.operationHours === '2교대(16H)' ? 'selected' : ''}>2교대(16H)</option>
-                            <option ${load.operationHours === '간헐적' ? 'selected' : ''}>간헐적</option>
-                        </select>
+                        <label>부하율 (%)</label>
+                        <input type="number" class="detail-form-control" id="editLoadRate" value="${load.loadRate || ''}" min="0" max="100" inputmode="numeric" pattern="[0-9]*" placeholder="">
+                    </div>
+                    <div class="detail-form-group">
+                        <label>특이사항</label>
+                        <textarea class="detail-form-control" id="editLoadNotes" placeholder="" style="min-height: 60px; resize: vertical;">${load.notes || ''}</textarea>
                     </div>
                     <div class="detail-form-group">
                         <label>현장 사진</label>
@@ -2281,57 +2286,90 @@
         // 노드 데이터 저장
         function saveNodeData(nodeId) {
             if (nodeId === 'kepco') {
-                systemData.kepco.contractPower = parseInt(document.getElementById('kepcoContract').value) || 0;
+                systemData.kepco.contractPower = parseInt(document.getElementById('kepcoContract').value) || '';
                 systemData.kepco.voltage = document.getElementById('kepcoVoltage').value;
-                systemData.kepco.breaker = parseInt(document.getElementById('kepcoBreaker').value) || 0;
+                systemData.kepco.breaker = parseInt(document.getElementById('kepcoBreaker').value) || '';
                 systemData.kepco.status = 'complete';
-                
+
+                // KEPCO 정보 구성
+                let kepcoInfoLines = [];
+                if (systemData.kepco.voltage && systemData.kepco.voltage !== '') {
+                    kepcoInfoLines.push(systemData.kepco.voltage);
+                }
+                if (systemData.kepco.contractPower && systemData.kepco.contractPower !== '') {
+                    kepcoInfoLines.push(`${systemData.kepco.contractPower}kW`);
+                }
+                if (systemData.kepco.breaker && systemData.kepco.breaker !== '') {
+                    kepcoInfoLines.push(`${systemData.kepco.breaker}A`);
+                }
+
                 // 노드 업데이트
                 const node = document.getElementById('kepco');
-                node.querySelector('.node-info').textContent = `${systemData.kepco.voltage} / ${systemData.kepco.contractPower}kW`;
+                node.querySelector('.node-info').textContent = kepcoInfoLines.length > 0 ? kepcoInfoLines.join(' / ') : '-';
                 node.querySelector('.node-status').textContent = '✓';
                 node.querySelector('.node-status').className = 'node-status';
                 
             } else if (nodeId.startsWith('tr')) {
                 const tr = systemData.transformers[nodeId];
                 tr.title = document.getElementById('editTrName').value;
-                tr.capacity = parseInt(document.getElementById('editTrCapacity').value);
-                tr.loadRate = parseInt(document.getElementById('editTrLoadRate').value);
-                tr.breaker = parseInt(document.getElementById('editTrBreaker').value) || 0;
+                tr.capacity = parseInt(document.getElementById('editTrCapacity').value) || '';
+                tr.voltage = document.getElementById('editTrVoltage').value;
+                tr.breaker = parseInt(document.getElementById('editTrBreaker').value) || '';
                 tr.status = 'complete';
-                
+
+                // 변압기 정보 구성
+                let trInfoLines = [];
+                if (tr.capacity && tr.capacity !== '') {
+                    trInfoLines.push(`${tr.capacity}kVA`);
+                }
+                if (tr.voltage && tr.voltage !== '') {
+                    trInfoLines.push(`${tr.voltage}V`);
+                }
+                if (tr.breaker && tr.breaker !== '') {
+                    trInfoLines.push(`${tr.breaker}A`);
+                }
+
                 // 노드 업데이트
                 const node = document.getElementById(nodeId);
-                node.querySelector('.node-title').textContent = `🔌 ${tr.title}`;
-                node.querySelector('.node-info').textContent = `${tr.capacity}kVA`;
+                node.querySelector('.node-title').textContent = tr.title;
+                node.querySelector('.node-info').textContent = trInfoLines.length > 0 ? trInfoLines.join(' / ') : '-';
                 node.querySelector('.node-status').textContent = '✓';
                 node.querySelector('.node-status').className = 'node-status';
-                
+
             } else if (nodeId.startsWith('mcc')) {
                 const mcc = systemData.panels[nodeId];
                 mcc.title = document.getElementById('editMccName').value;
-                mcc.mainBreaker = parseInt(document.getElementById('editMccBreaker').value);
-                mcc.branches = parseInt(document.getElementById('editMccBranches').value);
-                mcc.loadRate = parseInt(document.getElementById('editMccLoadRate').value) || 0;
+                mcc.mainBreaker = parseInt(document.getElementById('editMccBreaker').value) || '';
                 mcc.status = 'complete';
 
                 // 노드 업데이트
                 const node = document.getElementById(nodeId);
-                node.querySelector('.node-title').textContent = `📊 ${mcc.title}`;
+                node.querySelector('.node-title').textContent = mcc.title;
+                node.querySelector('.node-info').textContent = mcc.mainBreaker && mcc.mainBreaker !== '' ? `${mcc.mainBreaker}A` : '-';
                 node.querySelector('.node-status').textContent = '✓';
                 node.querySelector('.node-status').className = 'node-status';
-                
+
             } else if (nodeId.startsWith('load')) {
                 const load = systemData.loads[nodeId];
                 load.title = document.getElementById('editLoadName').value;
-                load.loadRate = parseInt(document.getElementById('editLoadRate').value) || 0;
-                load.operationHours = document.getElementById('editLoadOperationHours').value;
+                load.type = document.getElementById('editLoadType').value;
+                load.loadRate = parseInt(document.getElementById('editLoadRate').value) || '';
+                load.notes = document.getElementById('editLoadNotes').value;
                 load.status = 'complete';
-                
+
+                // 부하 정보 구성
+                let loadInfoLines = [];
+                if (load.type && load.type !== '') {
+                    loadInfoLines.push(load.type);
+                }
+                if (load.loadRate && load.loadRate !== '') {
+                    loadInfoLines.push(`${load.loadRate}%`);
+                }
+
                 // 노드 업데이트
                 const node = document.getElementById(nodeId);
-                node.querySelector('.node-title').textContent = `⚙️ ${load.title}`;
-                node.querySelector('.node-info').textContent = `부하율: ${load.loadRate}%`;
+                node.querySelector('.node-title').textContent = load.title;
+                node.querySelector('.node-info').textContent = loadInfoLines.length > 0 ? loadInfoLines.join(' / ') : '-';
                 node.querySelector('.node-status').textContent = '✓';
                 node.querySelector('.node-status').className = 'node-status';
             }
@@ -2553,20 +2591,14 @@
                             redrawConnections();
                         }, 100);
 
-                        // 모든 노드의 사진 표시 업데이트
-                        ['kepco', 'transformers', 'panels', 'loads'].forEach(nodeType => {
-                            if (nodeType === 'kepco') {
-                                if (systemData.kepco.images && systemData.kepco.images.length > 0) {
-                                    updatePhotoDisplay('kepco');
+                        // 모든 노드의 사진 표시 업데이트 (통합된 images 구조 사용)
+                        if (systemData.images) {
+                            Object.keys(systemData.images).forEach(nodeId => {
+                                if (systemData.images[nodeId] && systemData.images[nodeId].length > 0) {
+                                    updatePhotoDisplay(nodeId);
                                 }
-                            } else {
-                                Object.keys(systemData[nodeType] || {}).forEach(nodeId => {
-                                    if (systemData[nodeType][nodeId].images && systemData[nodeType][nodeId].images.length > 0) {
-                                        updatePhotoDisplay(nodeId);
-                                    }
-                                });
-                            }
-                        });
+                            });
+                        }
 
                         alert('✅ JSON 데이터가 성공적으로 불러와졌습니다!');
 
@@ -2582,11 +2614,11 @@
 
         // 자동 계산
         function autoCalculate() {
-            // 변압기 부하율 자동 계산
+            // 변압기 부하 계산 (부하율 계산 제거됨)
             Object.keys(systemData.transformers).forEach(trId => {
                 const connectedPanels = systemData.connections.transformerToPanels[trId] || [];
                 let totalLoad = 0;
-                
+
                 connectedPanels.forEach(panelId => {
                     const connectedLoads = systemData.connections.panelToLoads[panelId] || [];
                     connectedLoads.forEach(loadId => {
@@ -2596,9 +2628,8 @@
                         }
                     });
                 });
-                
-                const tr = systemData.transformers[trId];
-                tr.loadRate = Math.min(100, Math.round(totalLoad / tr.capacity * 100));
+
+                // 부하율 자동 계산 제거됨
             });
             
             updateStatistics();
@@ -2611,7 +2642,8 @@
                 systemData = {
                     kepco: {
                         voltage: '22.9kV',
-                        contractPower: 0,
+                        contractPower: '',
+                        breaker: '',
                         receptionType: '',
                         vcb: '',
                         status: 'empty'
@@ -2677,7 +2709,7 @@
         }
 
         // 사진 촬영 기능 (썸네일 방식)
-        function addPhoto(nodeId) {
+        function addPhoto(nodeId, category = 'general') {
             const input = document.createElement('input');
             input.type = 'file';
             input.accept = 'image/*';
@@ -2698,16 +2730,26 @@
                             systemData.images[nodeId] = [];
                         }
 
+                        // 카테고리별 라벨 설정
+                        const categoryLabels = {
+                            'general': '현장 사진',
+                            'breaker-label': '차단기 라벨',
+                            'panel-config': '분전반 구성',
+                            'transformer-config': '변압기 구성'
+                        };
+
                         systemData.images[nodeId].push({
                             thumbnail: thumbnailData,           // 썸네일 (30-50KB)
                             originalName: file.name,            // 원본 파일명
                             timestamp: now.toISOString(),       // ISO 형식 시간
                             displayTime: now.toLocaleString(),  // 화면 표시용 시간
                             size: Math.round(file.size / 1024) + 'KB', // 원본 크기
-                            nodeId: nodeId                      // 노드 ID 참조
+                            nodeId: nodeId,                     // 노드 ID 참조
+                            category: category,                 // 사진 카테고리
+                            categoryLabel: categoryLabels[category] || '현장 사진'  // 카테고리 라벨
                         });
 
-                        alert(`📸 사진이 추가되었습니다!\n원본: ${file.name} (${Math.round(file.size/1024)}KB)\n썸네일로 저장됨`);
+                        alert(`📸 ${categoryLabels[category] || '사진'}이 추가되었습니다!\n원본: ${file.name} (${Math.round(file.size/1024)}KB)\n썸네일로 저장됨`);
                         updatePhotoDisplay(nodeId);
                         updateDetailPhotoDisplay(nodeId);
                         redrawConnections(); // 연결선 다시 그리기
@@ -2769,8 +2811,8 @@
                 // 사진 정보 표시
                 const infoDiv = document.createElement('div');
                 infoDiv.style.cssText = 'font-size: 10px; color: #666; text-align: center; margin-top: 2px; max-width: 80px; overflow: hidden; text-overflow: ellipsis; white-space: nowrap;';
-                infoDiv.textContent = img.originalName || `Photo ${index + 1}`;
-                infoDiv.title = `원본: ${img.originalName || 'photo'}\n크기: ${img.size || 'unknown'}\n촬영: ${img.displayTime || ''}`;
+                infoDiv.textContent = img.categoryLabel || img.originalName || `Photo ${index + 1}`;
+                infoDiv.title = `분류: ${img.categoryLabel || '현장 사진'}\n원본: ${img.originalName || 'photo'}\n크기: ${img.size || 'unknown'}\n촬영: ${img.displayTime || ''}`;
 
                 // 삭제 버튼
                 const deleteBtn = document.createElement('button');
@@ -2841,7 +2883,6 @@
                 document.getElementById('companyContact').value = systemData.companyInfo.contact || '';
                 document.getElementById('companyManager').value = systemData.companyInfo.manager || '';
                 document.getElementById('surveyDate').value = systemData.companyInfo.surveyDate || '';
-                document.getElementById('contractDate').value = systemData.companyInfo.contractDate || '';
                 document.getElementById('companyNotes').value = systemData.companyInfo.notes || '';
             }
 
@@ -2861,7 +2902,6 @@
                 contact: document.getElementById('companyContact').value,
                 manager: document.getElementById('companyManager').value,
                 surveyDate: document.getElementById('surveyDate').value,
-                contractDate: document.getElementById('contractDate').value,
                 notes: document.getElementById('companyNotes').value
             };
 
@@ -2884,12 +2924,24 @@
             // KEPCO 수전 정보 업데이트
             let kepcoNode = document.getElementById('kepco');
             if (kepcoNode && systemData.kepco) {
+                // KEPCO 정보 구성 (최신 형식)
+                let kepcoInfoLines = [];
+                if (systemData.kepco.voltage && systemData.kepco.voltage !== '') {
+                    kepcoInfoLines.push(systemData.kepco.voltage);
+                }
+                if (systemData.kepco.contractPower && systemData.kepco.contractPower !== '') {
+                    kepcoInfoLines.push(`${systemData.kepco.contractPower}kW`);
+                }
+                if (systemData.kepco.breaker && systemData.kepco.breaker !== '') {
+                    kepcoInfoLines.push(`${systemData.kepco.breaker}A`);
+                }
+
                 // 기존 KEPCO 노드 업데이트
                 const nodeInfo = kepcoNode.querySelector('.node-info');
                 const nodeStatus = kepcoNode.querySelector('.node-status');
 
                 if (nodeInfo) {
-                    nodeInfo.textContent = `${systemData.kepco.voltage} / ${systemData.kepco.contractPower}kW`;
+                    nodeInfo.textContent = kepcoInfoLines.length > 0 ? kepcoInfoLines.join(' / ') : '-';
                 }
                 if (nodeStatus) {
                     nodeStatus.className = `node-status ${systemData.kepco.status || 'empty'}`;
@@ -2912,6 +2964,17 @@
             Object.values(systemData.loads || {}).forEach(load => {
                 addLoadNode(load.id);
             });
+
+            // 모든 노드의 사진 표시 업데이트
+            setTimeout(() => {
+                if (systemData.images) {
+                    Object.keys(systemData.images).forEach(nodeId => {
+                        if (systemData.images[nodeId] && systemData.images[nodeId].length > 0) {
+                            updatePhotoDisplay(nodeId);
+                        }
+                    });
+                }
+            }, 50);
 
             // 통계 업데이트
             updateStatistics();
@@ -2946,7 +3009,7 @@
 
             report += '2. 변압기 현황\n';
             Object.values(systemData.transformers).forEach(tr => {
-                report += `   - ${tr.title}: ${tr.capacity}kVA (부하율 ${tr.loadRate}%)\n`;
+                report += `   - ${tr.title}: ${tr.capacity}kVA (전압: ${tr.voltage || '380/220'}V)\n`;
             });
 
             report += '\n3. 권장 리액터 용량\n';
