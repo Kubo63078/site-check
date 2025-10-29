@@ -1022,7 +1022,7 @@
             #floorPlanModal canvas {
                 width: 100% !important;
                 height: 55vh !important;
-                touch-action: pan-x pan-y pinch-zoom;
+                touch-action: none;
             }
 
             #floorPlanModal .modal-footer {
@@ -1383,6 +1383,8 @@
                 reactorProducts: [], // {id: string, x: number, y: number, productId: string, rotation: number}
                 scale: 1, // mm per pixel
                 gridSize: 100, // mm (100mm 간격)
+                panX: 0, // 패닝 X 오프셋 (픽셀)
+                panY: 0, // 패닝 Y 오프셋 (픽셀)
                 safetyMargins: {
                     front: 800,    // 전면 여유공간 (mm)
                     back: 600,     // 후면 여유공간 (mm)
@@ -3194,6 +3196,12 @@
         let isDragging = false;
         let dragOffset = { x: 0, y: 0 };
 
+        // 터치 제스처 관련 변수
+        let lastTouchDistance = 0;
+        let lastTouchCenter = { x: 0, y: 0 };
+        let isPinching = false;
+        let isPanning = false;
+
         // 평면도 모달 열기
         function openFloorPlan() {
             document.getElementById('floorPlanModal').classList.add('show');
@@ -3232,29 +3240,13 @@
             floorPlanCanvas.addEventListener('touchmove', onFloorPlanTouchMove);
             floorPlanCanvas.addEventListener('touchend', onFloorPlanTouchEnd);
 
-            // 터치 시 스크롤 방지 (단, 단일 터치 드래그 중에만)
+            // 터치 시 기본 동작 방지 (커스텀 제스처 처리를 위해)
             floorPlanCanvas.addEventListener('touchstart', (e) => {
-                if (e.touches.length === 1) {
-                    const touch = e.touches[0];
-                    const rect = floorPlanCanvas.getBoundingClientRect();
-                    const x = touch.clientX - rect.left;
-                    const y = touch.clientY - rect.top;
-                    const clickResult = findFloorPlanItemAt(x, y);
-
-                    // 객체를 터치한 경우에만 기본 동작 방지
-                    if (clickResult) {
-                        e.preventDefault();
-                    }
-                }
-                // 2개 이상의 터치는 브라우저 기본 동작(확대/축소/이동) 허용
+                e.preventDefault(); // 모든 터치에서 기본 동작 차단
             });
 
             floorPlanCanvas.addEventListener('touchmove', (e) => {
-                // 단일 터치 드래그 중일 때만 기본 동작 방지
-                if (e.touches.length === 1 && isDragging && selectedFloorPlanItem) {
-                    e.preventDefault();
-                }
-                // 2개 이상의 터치는 브라우저 기본 동작(확대/축소/이동) 허용
+                e.preventDefault(); // 모든 터치에서 기본 동작 차단
             });
         }
 
@@ -3299,8 +3291,8 @@
             }
 
             const scale = systemData.floorPlan.scale;
-            const offsetX = 50;
-            const offsetY = 30;
+            const offsetX = 50 + (systemData.floorPlan.panX || 0);
+            const offsetY = 30 + (systemData.floorPlan.panY || 0);
 
             // 방이 정의된 경우
             if (width > 0 && length > 0) {
@@ -3729,8 +3721,10 @@
             if (clickResult) {
                 selectedFloorPlanItem = clickResult;
                 isDragging = true;
-                dragOffset.x = x - (20 + clickResult.item.x * systemData.floorPlan.scale);
-                dragOffset.y = y - (20 + clickResult.item.y * systemData.floorPlan.scale);
+                const offsetX = 50 + (systemData.floorPlan.panX || 0);
+                const offsetY = 30 + (systemData.floorPlan.panY || 0);
+                dragOffset.x = x - (offsetX + clickResult.item.x * systemData.floorPlan.scale);
+                dragOffset.y = y - (offsetY + clickResult.item.y * systemData.floorPlan.scale);
 
                 // 커서 변경
                 floorPlanCanvas.style.cursor = 'grabbing';
@@ -3757,9 +3751,12 @@
             const x = e.clientX - rect.left;
             const y = e.clientY - rect.top;
 
+            const offsetX = 50 + (systemData.floorPlan.panX || 0);
+            const offsetY = 30 + (systemData.floorPlan.panY || 0);
+
             // 격자에 스냅된 좌표 계산
-            const rawX = (x - dragOffset.x - 20) / systemData.floorPlan.scale;
-            const rawY = (y - dragOffset.y - 20) / systemData.floorPlan.scale;
+            const rawX = (x - dragOffset.x - offsetX) / systemData.floorPlan.scale;
+            const rawY = (y - dragOffset.y - offsetY) / systemData.floorPlan.scale;
 
             // Shift 키를 누르면 격자 스냅 비활성화
             const enableSnap = !e.shiftKey;
@@ -3796,11 +3793,28 @@
             hideCoordinateDisplay();
         }
 
+        // 두 터치 포인트 간 거리 계산
+        function getTouchDistance(touches) {
+            const dx = touches[0].clientX - touches[1].clientX;
+            const dy = touches[0].clientY - touches[1].clientY;
+            return Math.sqrt(dx * dx + dy * dy);
+        }
+
+        // 두 터치 포인트의 중심점 계산
+        function getTouchCenter(touches, rect) {
+            return {
+                x: ((touches[0].clientX + touches[1].clientX) / 2) - rect.left,
+                y: ((touches[0].clientY + touches[1].clientY) / 2) - rect.top
+            };
+        }
+
         // 터치 이벤트 핸들러들 (모바일 지원)
         function onFloorPlanTouchStart(e) {
+            const rect = floorPlanCanvas.getBoundingClientRect();
+
             if (e.touches.length === 1) {
+                // 단일 터치: 객체 드래그 시작
                 const touch = e.touches[0];
-                const rect = floorPlanCanvas.getBoundingClientRect();
                 const x = touch.clientX - rect.left;
                 const y = touch.clientY - rect.top;
 
@@ -3809,51 +3823,107 @@
                 if (clickResult) {
                     selectedFloorPlanItem = clickResult;
                     isDragging = true;
-                    dragOffset.x = x - (20 + clickResult.item.x * systemData.floorPlan.scale);
-                    dragOffset.y = y - (20 + clickResult.item.y * systemData.floorPlan.scale);
+                    const offsetX = 50 + (systemData.floorPlan.panX || 0);
+                    const offsetY = 30 + (systemData.floorPlan.panY || 0);
+                    dragOffset.x = x - (offsetX + clickResult.item.x * systemData.floorPlan.scale);
+                    dragOffset.y = y - (offsetY + clickResult.item.y * systemData.floorPlan.scale);
                 } else {
                     selectedFloorPlanItem = null;
                 }
 
                 updateFloorPlan();
+            } else if (e.touches.length === 2) {
+                // 두 손가락: 핀치/패닝 시작
+                isPinching = true;
+                isPanning = true;
+                isDragging = false;
+                selectedFloorPlanItem = null;
+
+                lastTouchDistance = getTouchDistance(e.touches);
+                lastTouchCenter = getTouchCenter(e.touches, rect);
             }
         }
 
         function onFloorPlanTouchMove(e) {
-            if (!isDragging || !selectedFloorPlanItem || e.touches.length !== 1) {
-                return;
-            }
-
-            const touch = e.touches[0];
             const rect = floorPlanCanvas.getBoundingClientRect();
-            const x = touch.clientX - rect.left;
-            const y = touch.clientY - rect.top;
 
-            // 격자에 스냅된 좌표 계산
-            const rawX = (x - dragOffset.x - 20) / systemData.floorPlan.scale;
-            const rawY = (y - dragOffset.y - 20) / systemData.floorPlan.scale;
+            if (e.touches.length === 1 && isDragging && selectedFloorPlanItem) {
+                // 단일 터치: 객체 드래그
+                const touch = e.touches[0];
+                const x = touch.clientX - rect.left;
+                const y = touch.clientY - rect.top;
 
-            // 터치에서는 기본적으로 격자 스냅 활성화
-            selectedFloorPlanItem.item.x = snapToGrid(rawX);
-            selectedFloorPlanItem.item.y = snapToGrid(rawY);
+                const offsetX = 50 + (systemData.floorPlan.panX || 0);
+                const offsetY = 30 + (systemData.floorPlan.panY || 0);
 
-            // 경계 검사 및 제한
-            constrainToBounds(selectedFloorPlanItem);
+                // 격자에 스냅된 좌표 계산
+                const rawX = (x - dragOffset.x - offsetX) / systemData.floorPlan.scale;
+                const rawY = (y - dragOffset.y - offsetY) / systemData.floorPlan.scale;
 
-            updateFloorPlan();
+                // 터치에서는 기본적으로 격자 스냅 활성화
+                selectedFloorPlanItem.item.x = snapToGrid(rawX);
+                selectedFloorPlanItem.item.y = snapToGrid(rawY);
 
-            // 리스트 업데이트
-            if (selectedFloorPlanItem.type === 'reactor') {
-                updateReactorProductsList();
-            } else if (selectedFloorPlanItem.type === 'equipment') {
-                updateExistingEquipmentList();
-            } else if (selectedFloorPlanItem.type === 'door') {
-                updateDoorsList();
+                // 경계 검사 및 제한
+                constrainToBounds(selectedFloorPlanItem);
+
+                updateFloorPlan();
+
+                // 리스트 업데이트
+                if (selectedFloorPlanItem.type === 'reactor') {
+                    updateReactorProductsList();
+                } else if (selectedFloorPlanItem.type === 'equipment') {
+                    updateExistingEquipmentList();
+                } else if (selectedFloorPlanItem.type === 'door') {
+                    updateDoorsList();
+                }
+            } else if (e.touches.length === 2 && (isPinching || isPanning)) {
+                // 두 손가락: 핀치 줌 & 패닝
+                const currentDistance = getTouchDistance(e.touches);
+                const currentCenter = getTouchCenter(e.touches, rect);
+
+                // 핀치 줌
+                if (isPinching && lastTouchDistance > 0) {
+                    const scaleDelta = currentDistance / lastTouchDistance;
+                    const oldScale = systemData.floorPlan.scale;
+                    systemData.floorPlan.scale *= scaleDelta;
+
+                    // 스케일 제한
+                    const minScale = 0.01;
+                    const maxScale = 3;
+                    systemData.floorPlan.scale = Math.max(minScale, Math.min(maxScale, systemData.floorPlan.scale));
+
+                    // 핀치 중심점 기준으로 줌 (손가락 위치 고정)
+                    const actualScaleDelta = systemData.floorPlan.scale / oldScale;
+                    systemData.floorPlan.panX = currentCenter.x - (currentCenter.x - systemData.floorPlan.panX) * actualScaleDelta;
+                    systemData.floorPlan.panY = currentCenter.y - (currentCenter.y - systemData.floorPlan.panY) * actualScaleDelta;
+                }
+
+                // 패닝
+                if (isPanning) {
+                    const deltaX = currentCenter.x - lastTouchCenter.x;
+                    const deltaY = currentCenter.y - lastTouchCenter.y;
+                    systemData.floorPlan.panX += deltaX;
+                    systemData.floorPlan.panY += deltaY;
+                }
+
+                lastTouchDistance = currentDistance;
+                lastTouchCenter = currentCenter;
+
+                updateFloorPlan();
             }
         }
 
         function onFloorPlanTouchEnd(e) {
-            isDragging = false;
+            if (e.touches.length < 2) {
+                isPinching = false;
+                isPanning = false;
+                lastTouchDistance = 0;
+            }
+            if (e.touches.length === 0) {
+                isDragging = false;
+                selectedFloorPlanItem = null;
+            }
         }
 
         // 경계 제한 함수
@@ -3996,8 +4066,8 @@
         // 클릭 위치의 객체 찾기
         function findFloorPlanItemAt(canvasX, canvasY) {
             const scale = systemData.floorPlan.scale;
-            const offsetX = 50;
-            const offsetY = 30;
+            const offsetX = 50 + (systemData.floorPlan.panX || 0);
+            const offsetY = 30 + (systemData.floorPlan.panY || 0);
 
             // 리액터 제품 검사
             for (let product of systemData.floorPlan.reactorProducts) {
