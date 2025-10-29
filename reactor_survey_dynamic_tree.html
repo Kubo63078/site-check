@@ -1022,7 +1022,7 @@
             #floorPlanModal canvas {
                 width: 100% !important;
                 height: 55vh !important;
-                touch-action: none;
+                touch-action: pan-x pan-y pinch-zoom;
             }
 
             #floorPlanModal .modal-footer {
@@ -3232,9 +3232,30 @@
             floorPlanCanvas.addEventListener('touchmove', onFloorPlanTouchMove);
             floorPlanCanvas.addEventListener('touchend', onFloorPlanTouchEnd);
 
-            // 터치 시 스크롤 방지
-            floorPlanCanvas.addEventListener('touchstart', (e) => e.preventDefault());
-            floorPlanCanvas.addEventListener('touchmove', (e) => e.preventDefault());
+            // 터치 시 스크롤 방지 (단, 단일 터치 드래그 중에만)
+            floorPlanCanvas.addEventListener('touchstart', (e) => {
+                if (e.touches.length === 1) {
+                    const touch = e.touches[0];
+                    const rect = floorPlanCanvas.getBoundingClientRect();
+                    const x = touch.clientX - rect.left;
+                    const y = touch.clientY - rect.top;
+                    const clickResult = findFloorPlanItemAt(x, y);
+
+                    // 객체를 터치한 경우에만 기본 동작 방지
+                    if (clickResult) {
+                        e.preventDefault();
+                    }
+                }
+                // 2개 이상의 터치는 브라우저 기본 동작(확대/축소/이동) 허용
+            });
+
+            floorPlanCanvas.addEventListener('touchmove', (e) => {
+                // 단일 터치 드래그 중일 때만 기본 동작 방지
+                if (e.touches.length === 1 && isDragging && selectedFloorPlanItem) {
+                    e.preventDefault();
+                }
+                // 2개 이상의 터치는 브라우저 기본 동작(확대/축소/이동) 허용
+            });
         }
 
         // 평면도 데이터 로드
